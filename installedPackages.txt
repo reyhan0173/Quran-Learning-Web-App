@@ -9,3 +9,4 @@ ejs = npm install ejs
 md5 = npm install md5
 nodemon = npm install -g nodemon
 validator = npm install validator
+connect-flash = npm install connect-flash
