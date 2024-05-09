@@ -1,0 +1,5 @@
+express = npm install express
+react = npx create-react-app client
+mysql = npm install sequelize mysql2
+sequelize = npx sequelize-cli init
+.env = npm install dotenv
