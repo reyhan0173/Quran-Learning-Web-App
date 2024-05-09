@@ -1,31 +1,10 @@
-const express = require("express");
-const session = require("express-session");
-const app = express();
-const MongoStore = require("connect-mongo");
-const flash = require("connect-flash");
+let http = require("http");
 
-let sessionOptions = session({
-  secret: "Js is so cool",
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 24,
-    httpOnly: true,
-  },
+let ourApp = http.createServer(function (req, res) {
+  if (req.url == "/") {
+    res.end(`${req.url}`);
+  } else {
+    res.end(`${req.url} doesnt exist`);
+  }
 });
-
-app.use(sessionOptions);
-app.use(flash());
-
-const router = require("./router");
-
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-app.use(express.static("public"));
-
-app.set("views", "views-folder");
-app.set("view engine", "ejs");
-
-app.use("/", router);
-
-module.exports = app;
+ourApp.listen(3000);
