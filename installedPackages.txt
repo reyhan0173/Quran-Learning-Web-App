@@ -10,3 +10,4 @@ md5 = npm install md5
 nodemon = npm install -g nodemon
 validator = npm install validator
 connect-flash = npm install connect-flash
+node-fetch = npm install node-fetch
