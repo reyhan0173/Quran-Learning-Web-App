@@ -63,7 +63,7 @@ ourApp.post("/play", async (req, res) => {
       <body>
         <h1>Quran App</h1>
         <p>Now playing: ${audioUrl}</p>
-        <audio src=${audioUrl} autoplay controls></audio>
+        <audio class="audio-player" src=${audioUrl} autoplay controls></audio>
         <form action="/" method="GET">
           <button type="submit" class="play">Back</button>
         </form>
