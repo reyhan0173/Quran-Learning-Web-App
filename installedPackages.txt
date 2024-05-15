@@ -13,3 +13,20 @@ connect-flash = npm install connect-flash
 node-fetch = npm install node-fetch
 util
 sqlite3
+
+
+npm install express
+npx create-react-app client
+npm install sequelize mysql2
+npx sequelize-cli init
+npm install dotenv
+npm install express-session
+npm install bcryptjs
+npm install ejs
+npm install md5
+npm install -g nodemon
+npm install validator
+npm install connect-flash
+npm install node-fetch
+npm install util
+npm install sqlite3

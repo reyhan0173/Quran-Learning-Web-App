@@ -2,6 +2,8 @@ const express = require("express");
 const ourApp = express();
 const { promisify } = require("util");
 
+const portNumber = 5000
+
 // Serve static files from the 'public' directory
 ourApp.use(express.urlencoded({ extended: false }));
 ourApp.use(express.static("public"));
@@ -120,7 +122,7 @@ async function getAyahsText(start_pos, end_pos) {
 ourApp.get("/", async (req, res) => {
   try {
     const START_POSITION = "2:2";
-    const END_POSITION = "20:1";
+    const END_POSITION = "3:1";
     const ayahText = await getAyahsText(START_POSITION, END_POSITION);
     res.render("index", { ayahText });
   } catch (err) {
@@ -129,6 +131,6 @@ ourApp.get("/", async (req, res) => {
   }
 });
 
-ourApp.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
+ourApp.listen(portNumber, () => {
+  console.log(`Server running on http://localhost:${portNumber}`);
 });
