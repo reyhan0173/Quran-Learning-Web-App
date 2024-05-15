@@ -1,12 +1,12 @@
 body {
     margin: 0;
-    background-color: lightblue;
+    background-color: white;
 }
 
 header {
     width: 100%;
     height: 60px;
-    background-color: lightblue;
+    background-color: white;
 }
 
 main {
@@ -17,7 +17,7 @@ main {
 }
 
 .ayah-container {
-    background-color: white;
+    background-color: rgb(209, 209, 209);
     height: 100px;
     display: flex;
 }
