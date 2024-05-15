@@ -1,12 +1,15 @@
-express = npm install express
-react = npx create-react-app client
-mysql = npm install sequelize mysql2
-sequelize = npx sequelize-cli init
-.env = npm install dotenv
-express-session = npm install express-session
-bcryptjs = npm install bcryptjs
-ejs = npm install ejs
-md5 = npm install md5
-nodemon = npm install -g nodemon
-validator = npm install validator
-connect-flash = npm install connect-flash
+npm install express
+npx create-react-app client
+npm install sequelize mysql2
+npx sequelize-cli init
+npm install dotenv
+npm install express-session
+npm install bcryptjs
+npm install ejs
+npm install md5
+npm install -g nodemon
+npm install validator
+npm install connect-flash
+npm install node-fetch
+npm install util
+npm install sqlite3
