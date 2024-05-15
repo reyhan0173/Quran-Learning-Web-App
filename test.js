@@ -123,8 +123,8 @@ ourApp.get("/", async (req, res) => {
   try {
     const START_POSITION = "2:2";
     const END_POSITION = "3:1";
-    const ayahText = await getAyahsText(START_POSITION, END_POSITION);
-    res.render("index", { ayahText });
+    const ayaHtml = await getAyahsText(START_POSITION, END_POSITION);
+    res.render("index", { ayaHtml });
   } catch (err) {
     console.error("Error: ", err);
     res.status(500).send("Internal Server Error");
