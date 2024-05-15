@@ -119,8 +119,8 @@ async function getAyahsText(start_pos, end_pos) {
 
 ourApp.get("/", async (req, res) => {
   try {
-    const START_POSITION = "113:2";
-    const END_POSITION = "114:5";
+    const START_POSITION = "2:2";
+    const END_POSITION = "20:1";
     const ayahText = await getAyahsText(START_POSITION, END_POSITION);
     res.render("index", { ayahText });
   } catch (err) {
