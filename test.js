@@ -1,6 +1,7 @@
 const express = require("express");
 const ourApp = express();
 const { promisify } = require("util");
+const Surah = require("./Surah");
 
 const portNumber = 5001
 
@@ -12,54 +13,17 @@ ourApp.set("view engine", "ejs"); // Set EJS as the template engine
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
-const sqlite3 = require("sqlite3").verbose();
-
-// Connect to the database
-let db = new sqlite3.Database("surah_info.db", (err) => {
-  if (err) {
-    console.error("Could not connect to database", err);
-  } else {
-    console.log("Connected to the SQLite database");
-  }
-});
-
-function eachAsync(db, sql, params) {
-  return new Promise((resolve, reject) => {
-    let results = [];
-    db.each(
-      sql,
-      params,
-      (err, row) => {
-        if (err) {
-          reject(err);
-        } else {
-          results.push(row.AyahCount);
-        }
-      },
-      (err, numRows) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(results);
-        }
-      }
-    );
-  });
-}
-
 async function getAyahCount(surahNumber) {
   try {
-    const results = await eachAsync(
-      db,
-      "SELECT AyahCount FROM SurahAyahCount WHERE SurahNumber = ?",
-      [surahNumber]
-    );
-    return results[0];
+    const result = await Surah.findOne({
+      where: { SurahNumber: surahNumber },
+      attributes: ['NumberOfVerses']
+    });
+    return result ? result.NumberOfVerses : null;
   } catch (err) {
     console.error(err);
   }
 }
-
 async function fetchVerse(ayah) {
   const verse_url = `https://api.quran.com/api/v4/quran/verses/indopak?verse_key=${ayah}`;
   console.log(verse_url);
@@ -121,8 +85,8 @@ async function getAyahsText(start_pos, end_pos) {
 
 ourApp.get("/", async (req, res) => {
   try {
-    const START_POSITION = "2:2";
-    const END_POSITION = "3:1";
+    const START_POSITION = "108:3";
+    const END_POSITION = "112:2";
     const ayaHtml = await getAyahsText(START_POSITION, END_POSITION);
     res.render("index", { ayaHtml });
   } catch (err) {
