@@ -36,7 +36,24 @@ async function fetchVerse(ayah) {
   return data.verses[0].text_indopak;
 }
 
+// Function to fetch mistake indexes for each verse from the database
+async function getMistakeIndexes(start_pos, end_pos) {
+  // Fetch mistake indexes from database based on the range of verses
+  // Return a map with verse numbers as keys and corresponding mistake indexes as values
+}
+
 function ayahWithButtons(current_posStr, verse, recitor=4, loop=4) {
+  let highlightedVerse = "";
+
+  for (let i = 0; i < verse.length; i++) {
+    const char = verse[i];
+    if (mistakeIndexes.includes(i)) {
+      highlightedVerse += `<span class="mistake">${char}</span>`; // Apply highlighting to the characters with mistake indexes
+    } else {
+      highlightedVerse += char;
+    }
+  }
+  
   return `
     <div class="ayah-container" data-url="${current_posStr}">
       <div class="ayah-controls">
@@ -74,6 +91,7 @@ async function getAyahsText(start_pos, end_pos) {
   }
 
   const verses = await Promise.all(promises);
+  const mistakeIndexesMap = await getMistakeIndexes(start_pos, end_pos);
   let htmlContent = "";
 
   verses.forEach(({ current_posStr, verse }) => {
