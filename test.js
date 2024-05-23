@@ -74,7 +74,8 @@ function ayahWithButtons(current_posStr, verse, recitor = 4, loop = 4) {
       <p class="ayah">${verse}</p>
       </div>
       <div class="number-input-container">
-        <input type="number" class="loop-number-input" value="${loop}" min="0" max="100" step="1" onchange="trackNumberInput(this.parentElement.parentElement.querySelector('.ayah-control-button'), this.value)">
+        <p class="loop-counter" data-count=0 data-loop=${loop}>0/${loop}</p>
+        <input type="number" class="loop-number-input" value="${loop}" min="0" max="100" step="1" onchange="trackNumberInput(this, this.value)">
       </div>
     </div>
   `;

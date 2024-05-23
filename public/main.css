@@ -18,23 +18,26 @@ main {
 
 .ayah-container {
     background-color: rgb(209, 209, 209);
-    height: 100px;
+    height: 120px;
     display: flex;
+    gap: 20px;
 }
 
-.ayah-buttons {
-    flex: 10%;
+.ayah-controls {
+    width: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .ayah-con {
     background-color: lightpink;
-    flex: 90%;
+    flex: 1; /* Take up remaining space */
 }
 
-.ayah-controls {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+
+.number-input-container {
+    width: 60px;
 }
 
 .ayah-control-button {
