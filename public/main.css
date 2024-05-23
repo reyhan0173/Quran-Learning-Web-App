@@ -38,5 +38,12 @@ main {
 }
 
 .ayah-control-button {
-    flex: 50%;
+    margin: 10px;
+    flex: 1;
+}
+
+.ayah-bookmark-button {
+    margin: 10px;
+    margin-top: 0px;
+    flex: 1;
 }

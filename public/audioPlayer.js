@@ -53,3 +53,21 @@ async function playPauseAudio(ayah_id, recitor, loop=3) {
   audioElement.prev_ayah = "";
   audioElement.prev_recitor = "";
 }
+
+async function bookmark(current_posStr) {
+  try {
+    const response = await fetch('/bookmark', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ current_posStr })
+    });
+    if (!response.ok) {
+      throw new Error('Failed to bookmark ayah');
+    }
+    // Optionally, you can handle success response here
+  } catch (error) {
+    console.error('Error bookmarking ayah:', error);
+  }
+}

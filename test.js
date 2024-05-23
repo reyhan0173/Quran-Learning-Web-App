@@ -2,13 +2,19 @@ const express = require("express");
 const ourApp = express();
 const { promisify } = require("util");
 const Surah = require("./Surah");
+ourApp.use(express.json());
 
 const portNumber = 5001
-
+const User = {
+  studentId: 121,
+  courseId: 123,
+  
+}
 // Serve static files from the 'public' directory
 ourApp.use(express.urlencoded({ extended: false }));
 ourApp.use(express.static("public"));
 ourApp.set("view engine", "ejs"); // Set EJS as the template engine
+
 
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
@@ -45,6 +51,11 @@ function ayahWithButtons(current_posStr, verse, recitor=4, loop=4) {
           onclick="playPauseAudio('${current_posStr}', ${recitor}, ${loop})"
         >
           play/pause
+        </button>
+        <button
+          class="ayah-bookmark-button" onclick="bookmark('${current_posStr}')"
+        >
+          Bookmark
         </button>
       </div>
 
@@ -92,6 +103,22 @@ ourApp.get("/", async (req, res) => {
   } catch (err) {
     console.error("Error: ", err);
     res.status(500).send("Internal Server Error");
+  }
+});
+
+bookmark = (current_posStr) => {
+  console.log(current_posStr);
+}
+
+ourApp.post('/bookmark', async (req, res) => {
+  try {
+    const { current_posStr } = req.body;
+    // Implement the logic to handle the bookmark action (e.g., save to database)
+    bookmark(current_posStr);
+    res.status(200).send('Bookmark saved successfully');
+  } catch (error) {
+    console.error('Error handling bookmark:', error);
+    res.status(500).send('Internal Server Error');
   }
 });
 
