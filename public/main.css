@@ -47,3 +47,7 @@ main {
     margin-top: 0px;
     flex: 1;
 }
+
+.isBookmarked {
+    background-color: lightblue;
+}

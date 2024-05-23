@@ -4,17 +4,24 @@ const { promisify } = require("util");
 const Surah = require("./Surah");
 ourApp.use(express.json());
 
-const portNumber = 5001
+const portNumber = 5001;
+
 const User = {
   studentId: 121,
   courseId: 123,
-  
-}
+};
+
+// Functions in bookmarkFunctions.js
+// isBookmarked(studentId, courseId, surahNumber, ayahNumber) returns 1 if bookmarked or 0 otherwise
+
+// isBookmarked(studentId, courseId, surahNumber, ayahNumber) returns 1 if successfully added and console.logs "Successfully added a bookmark at {surahNumber:ayahNumber}" or logs the error and returns 0
+
+// removeBookmark(studentId, courseId, surahNumber, ayahNumber) returns 1 if successfully removed and console.logs "Successfully removed the bookmark at {surahNumber:ayahNumber}" or logs the error and returns 0
+
 // Serve static files from the 'public' directory
 ourApp.use(express.urlencoded({ extended: false }));
 ourApp.use(express.static("public"));
 ourApp.set("view engine", "ejs"); // Set EJS as the template engine
-
 
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
@@ -23,7 +30,7 @@ async function getAyahCount(surahNumber) {
   try {
     const result = await Surah.findOne({
       where: { SurahNumber: surahNumber },
-      attributes: ['NumberOfVerses']
+      attributes: ["NumberOfVerses"],
     });
     return result ? result.NumberOfVerses : null;
   } catch (err) {
@@ -42,13 +49,17 @@ async function fetchVerse(ayah) {
   return data.verses[0].text_indopak;
 }
 
-function ayahWithButtons(current_posStr, verse, recitor=4, loop=4) {
+function ayahWithButtons(current_posStr, verse, recitor = 4, loop = 4) {
+  // _isBookmarked = isBookmarked(studentId, courseId, surahNumber, ayahNumber);
+  let _isBookmarked = 1;
   return `
-    <div class="ayah-container" data-url="${current_posStr}">
+    <div class="ayah-container ${
+      _isBookmarked ? "isBookmarked" : ""
+    }" data-url="${current_posStr}">
       <div class="ayah-controls">
-        <button
-          class="ayah-control-button"
-          onclick="playPauseAudio('${current_posStr}', ${recitor}, ${loop})"
+        <button data-ayahId="${current_posStr}"
+          class="ayah-control-button" data-loop="${loop}"
+          onclick="playPauseAudio(this)"
         >
           play/pause
         </button>
@@ -60,7 +71,10 @@ function ayahWithButtons(current_posStr, verse, recitor=4, loop=4) {
       </div>
 
       <div class="ayah_con">
-        <p class="ayah">${verse}</p>
+      <p class="ayah">${verse}</p>
+      </div>
+      <div class="number-input-container">
+        <input type="number" class="loop-number-input" value="${loop}" min="0" max="100" step="1" onchange="trackNumberInput(this.parentElement.parentElement.querySelector('.ayah-control-button'), this.value)">
       </div>
     </div>
   `;
@@ -74,12 +88,14 @@ async function getAyahsText(start_pos, end_pos) {
   let promises = [];
 
   while (current_pos[0] !== end_pos[0] || current_pos[1] !== end_pos[1] + 1) {
-    if (current_pos[1] > await getAyahCount(current_pos[0])) {
+    if (current_pos[1] > (await getAyahCount(current_pos[0]))) {
       current_pos[0] += 1;
       current_pos[1] = 1;
     } else {
       let current_posStr = `${current_pos[0]}:${current_pos[1]}`;
-      promises.push(fetchVerse(current_posStr).then(verse => ({ current_posStr, verse })));
+      promises.push(
+        fetchVerse(current_posStr).then((verse) => ({ current_posStr, verse }))
+      );
       current_pos[1] += 1;
     }
   }
@@ -108,17 +124,17 @@ ourApp.get("/", async (req, res) => {
 
 bookmark = (current_posStr) => {
   console.log(current_posStr);
-}
+};
 
-ourApp.post('/bookmark', async (req, res) => {
+ourApp.post("/bookmark", async (req, res) => {
   try {
     const { current_posStr } = req.body;
     // Implement the logic to handle the bookmark action (e.g., save to database)
     bookmark(current_posStr);
-    res.status(200).send('Bookmark saved successfully');
+    res.status(200).send("Bookmark saved successfully");
   } catch (error) {
-    console.error('Error handling bookmark:', error);
-    res.status(500).send('Internal Server Error');
+    console.error("Error handling bookmark:", error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
