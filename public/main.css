@@ -54,3 +54,8 @@ main {
 .isBookmarked {
     background-color: lightblue;
 }
+
+.mistake {
+    color: yellow; /* Change the color to your desired color */
+}
+
