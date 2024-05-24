@@ -87,19 +87,30 @@ async function playPauseAudio(buttonElement) {
 }
 
 async function bookmark(current_posStr) {
+  // Check if the button has the "isBookmarked" class to determine whether to add or remove a bookmark
+  const buttonElement = document.querySelector(`[data-url='${current_posStr}'] .ayah-bookmark-button`);
+  console.log(buttonElement)
+  const isBookmarked = buttonElement.parentElement.parentElement.classList.contains("isBookmarked");
+
+  const endpoint = isBookmarked ? "/removeBookmark" : "/addBookmark";
+  const method = "POST";
+
   try {
-    const response = await fetch("/bookmark", {
-      method: "POST",
+    const response = await fetch(endpoint, {
+      method,
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ current_posStr }),
     });
     if (!response.ok) {
-      throw new Error("Failed to bookmark ayah");
+      throw new Error(`Failed to ${isBookmarked ? 'remove' : 'add'} bookmark`);
     }
     // Optionally, you can handle success response here
+    // Toggle bookmark status
+    buttonElement.parentElement.parentElement.classList.toggle("isBookmarked");
+    buttonElement.textContent = isBookmarked ? "Bookmark" : "Unbookmark";
   } catch (error) {
-    console.error("Error bookmarking ayah:", error);
+    console.error(`Error ${isBookmarked ? 'removing' : 'adding'} bookmark:`, error);
   }
 }
