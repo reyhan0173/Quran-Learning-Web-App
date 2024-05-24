@@ -2,7 +2,7 @@ const express = require("express");
 const ourApp = express();
 const { promisify } = require("util");
 const Surah = require("./Surah");
-const hasMistake = require("./mistakesFormatting");
+const mistakes = require("./mistakesFormatting");
 const Bookmark = require("./bookmarkFormatting");
 ourApp.use(express.json());
 
@@ -54,7 +54,7 @@ async function renderAyahContainer(current_posStr, verse, recitor=4, loop=4) {
 
   console.log(_isBookmarked)
 
-  let mistakeIndexes = await hasMistake(current_posStr)
+  let mistakeIndexes = await mistakes.hasMistake(current_posStr)
   console.log(current_posStr);
   console.log(mistakeIndexes);
   
