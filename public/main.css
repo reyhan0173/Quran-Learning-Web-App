@@ -18,25 +18,39 @@ main {
 
 .ayah-container {
     background-color: rgb(209, 209, 209);
-    height: 100px;
+    height: 120px;
     display: flex;
-}
-
-.ayah-buttons {
-    flex: 10%;
-}
-
-.ayah-con {
-    background-color: lightpink;
-    flex: 90%;
+    gap: 20px;
 }
 
 .ayah-controls {
+    width: 100px;
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
+.ayah-con {
+    background-color: lightpink;
+    flex: 1; /* Take up remaining space */
+}
+
+
+.number-input-container {
+    width: 60px;
+}
+
 .ayah-control-button {
-    flex: 50%;
+    margin: 10px;
+    flex: 1;
+}
+
+.ayah-bookmark-button {
+    margin: 10px;
+    margin-top: 0px;
+    flex: 1;
+}
+
+.isBookmarked {
+    background-color: lightblue;
 }
