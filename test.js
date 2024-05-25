@@ -1,6 +1,5 @@
 const express = require("express");
 const ourApp = express();
-const { promisify } = require("util");
 const Surah = require("./Surah");
 const Mistakes = require("./mistakesFormatting");
 const Bookmark = require("./bookmarkFormatting");
@@ -45,21 +44,21 @@ async function fetchVerse(ayah) {
 }
 
 
-async function renderAyahContainer(current_posStr, verse, recitor=4, loop=4) {
+async function renderAyahContainer(current_posStr, verse, recitor = 4, loop = 4) {
   let [surahNumber, ayahNumber] = current_posStr.split(":").map(Number);
-  
-  console.log(User.studentId, User.courseId, surahNumber, ayahNumber)
+
+  console.log(User.studentId, User.courseId, surahNumber, ayahNumber);
 
   let _isBookmarked = await Bookmark.isBookmarked(User.studentId, User.courseId, surahNumber, ayahNumber);
 
-  console.log(_isBookmarked)
+  console.log(_isBookmarked);
 
-  let mistakeIndexes = await Mistakes.hasMistake(current_posStr)
+  let mistakeIndexes = await Mistakes.hasMistake(current_posStr);
   console.log(current_posStr);
   console.log(mistakeIndexes);
-  
+
   let mistakesVerse = "";
-  
+
   if (Array.isArray(mistakeIndexes)) {
     for (let i = 0; i < verse.length; i++) {
       const char = verse[i];
@@ -70,11 +69,11 @@ async function renderAyahContainer(current_posStr, verse, recitor=4, loop=4) {
       }
     }
   }
-  
+
   return `
     <div class="ayah-container ${
       _isBookmarked ? "isBookmarked" : ""
-    }" data-url="${current_posStr}">
+  }" data-url="${current_posStr}">
       <div class="ayah-controls">
         <button data-ayahId="${current_posStr}"
           class="ayah-control-button" data-loop="${loop}"
@@ -86,6 +85,11 @@ async function renderAyahContainer(current_posStr, verse, recitor=4, loop=4) {
           class="ayah-bookmark-button" onclick="bookmark('${current_posStr}')"
         >
           ${_isBookmarked ? "Unbookmark" : "Bookmark"}
+        </button>
+        <button
+          class="ayah-mark-mistake-button" onclick="mistake('${current_posStr}')"
+        >
+          Mark as Mistake
         </button>
       </div>
 
@@ -122,11 +126,7 @@ async function getAyahsText(start_pos, end_pos) {
 
   const verses = await Promise.all(promises);
   let htmlContent = "";
-
-  // verses.forEach(({ current_posStr, verse }) => {
-  //   htmlContent +=  renderAyahContainer(current_posStr, verse);
-  //  
-  // });
+  
   
   for (const { current_posStr, verse } of verses) {
     htmlContent += await renderAyahContainer(current_posStr, verse); // Wait for each call to finish before proceeding
@@ -171,6 +171,19 @@ ourApp.post("/removeBookmark", async (req, res) => {
     res.status(200).send("Bookmark saved successfully");
   } catch (error) {
     console.error("Error handling bookmark:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+ourApp.post("/addMistake", async (req, res) => {
+  try {
+    const { current_posStr, mistakeIndexes } = req.body;
+    let [surahNumber, ayahNumber] = current_posStr.split(":").map(Number);
+
+    // Implement the logic to handle adding mistakes (e.g., save to database)
+    await Mistakes.addMistake(surahNumber, ayahNumber, mistakeIndexes);
+    res.status(200).send("Mistake added successfully");
+  } catch (error) {
+    console.error("Error adding mistake:", error);
     res.status(500).send("Internal Server Error");
   }
 });

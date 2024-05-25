@@ -114,3 +114,77 @@ async function bookmark(current_posStr) {
     console.error(`Error ${isBookmarked ? 'removing' : 'adding'} bookmark:`, error);
   }
 }
+
+async function mistake(current_posStr) {
+  const selection = window.getSelection();
+  if (selection.rangeCount === 0) {
+    alert("Please select text to mark as a mistake.");
+    return;
+  }
+
+  const selectedText = selection.toString();
+  if (!selectedText) {
+    alert("Please select text to mark as a mistake.");
+    return;
+  }
+
+  // Find the specific verse element
+  const ayahElement = document.querySelector(`[data-url='${current_posStr}'] .ayah`);
+  if (!ayahElement) {
+    alert("Error: Could not find the selected verse.");
+    return;
+  }
+
+  const ayahText = ayahElement.textContent;
+  const range = selection.getRangeAt(0);
+
+  // Check if the selection is within the ayah element
+  if (!ayahElement.contains(range.commonAncestorContainer)) {
+    alert("Error: Selected text is not within the correct verse.");
+    return;
+  }
+
+  const startContainer = range.startContainer;
+  const startOffset = range.startOffset;
+  let startIndex = -1;
+
+  // Calculate the start index based on the character offset within the ayah text
+  if (startContainer.nodeType === Node.TEXT_NODE) {
+    startIndex = Array.from(ayahElement.childNodes).reduce((acc, node) => {
+      if (node === startContainer) {
+        return acc + startOffset;
+      } else {
+        return acc + (node.textContent.length || 0);
+      }
+    }, 0);
+  }
+
+  if (startIndex === -1 || ayahText.substring(startIndex, startIndex + selectedText.length) !== selectedText) {
+    alert("Error: Selected text not found in the verse.");
+    return;
+  }
+
+  const mistakeIndexes = [];
+  for (let i = startIndex; i < startIndex + selectedText.length; i++) {
+    mistakeIndexes.push(i);
+  }
+
+  // Send mistake indexes to the server
+  try {
+    const response = await fetch("/addMistake", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ current_posStr, mistakeIndexes }),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to add mistake");
+    }
+    alert("Mistake marked successfully");
+  } catch (error) {
+    console.error("Error adding mistake:", error);
+    alert("Error adding mistake");
+  }
+}
+
