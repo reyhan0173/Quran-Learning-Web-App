@@ -7,13 +7,16 @@ const AyahFormattingTable = sequelize.define('AyahFormatting', {
         primaryKey: true
     },
     courseId: {
-        type: DataTypes.INTEGER
+        type: DataTypes.INTEGER,
+        primaryKey: true
     },
     surahNumber: {
-        type: DataTypes.INTEGER
+        type: DataTypes.INTEGER,
+        primaryKey: true
     },
     ayahNumber: {
-        type: DataTypes.INTEGER
+        type: DataTypes.INTEGER,
+        primaryKey: true
     },
     isBookmarked: {
         type: DataTypes.BOOLEAN

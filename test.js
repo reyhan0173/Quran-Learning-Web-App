@@ -2,22 +2,16 @@ const express = require("express");
 const ourApp = express();
 const { promisify } = require("util");
 const Surah = require("./Surah");
-const hasMistake = require("./AyahFormatting");
+const Mistakes = require("./mistakesFormatting");
+const Bookmark = require("./bookmarkFormatting");
 ourApp.use(express.json());
 
 const portNumber = 5001;
 
 const User = {
-  studentId: 121,
+  studentId: 1111115,
   courseId: 123,
 };
-
-// Functions in AyahFormatting.js
-// isBookmarked(studentId, courseId, surahNumber, ayahNumber) returns 1 if bookmarked or 0 otherwise
-
-// isBookmarked(studentId, courseId, surahNumber, ayahNumber) returns 1 if successfully added and console.logs "Successfully added a bookmark at {surahNumber:ayahNumber}" or logs the error and returns 0
-
-// removeBookmark(studentId, courseId, surahNumber, ayahNumber) returns 1 if successfully removed and console.logs "Successfully removed the bookmark at {surahNumber:ayahNumber}" or logs the error and returns 0
 
 // Serve static files from the 'public' directory
 ourApp.use(express.urlencoded({ extended: false }));
@@ -51,11 +45,16 @@ async function fetchVerse(ayah) {
 }
 
 
-async function ayahWithButtons(current_posStr, verse, recitor=4, loop=4) {
-  // _isBookmarked = isBookmarked(studentId, courseId, surahNumber, ayahNumber);
-  let _isBookmarked = 1;
+async function renderAyahContainer(current_posStr, verse, recitor=4, loop=4) {
+  let [surahNumber, ayahNumber] = current_posStr.split(":").map(Number);
   
-  let mistakeIndexes = await hasMistake(current_posStr)
+  console.log(User.studentId, User.courseId, surahNumber, ayahNumber)
+
+  let _isBookmarked = await Bookmark.isBookmarked(User.studentId, User.courseId, surahNumber, ayahNumber);
+
+  console.log(_isBookmarked)
+
+  let mistakeIndexes = await Mistakes.hasMistake(current_posStr)
   console.log(current_posStr);
   console.log(mistakeIndexes);
   
@@ -86,7 +85,7 @@ async function ayahWithButtons(current_posStr, verse, recitor=4, loop=4) {
         <button
           class="ayah-bookmark-button" onclick="bookmark('${current_posStr}')"
         >
-          Bookmark
+          ${_isBookmarked ? "Unbookmark" : "Bookmark"}
         </button>
       </div>
 
@@ -125,12 +124,12 @@ async function getAyahsText(start_pos, end_pos) {
   let htmlContent = "";
 
   // verses.forEach(({ current_posStr, verse }) => {
-  //   htmlContent +=  ayahWithButtons(current_posStr, verse);
+  //   htmlContent +=  renderAyahContainer(current_posStr, verse);
   //  
   // });
   
   for (const { current_posStr, verse } of verses) {
-    htmlContent += await ayahWithButtons(current_posStr, verse); // Wait for each call to finish before proceeding
+    htmlContent += await renderAyahContainer(current_posStr, verse); // Wait for each call to finish before proceeding
   }
   
   return htmlContent;
@@ -139,7 +138,7 @@ async function getAyahsText(start_pos, end_pos) {
 ourApp.get("/", async (req, res) => {
   try {
     const START_POSITION = "5:8";
-    const END_POSITION = "5:10";
+    const END_POSITION = "5:20";
     const ayaHtml = await getAyahsText(START_POSITION, END_POSITION);
     res.render("index", { ayaHtml });
   } catch (err) {
@@ -148,15 +147,27 @@ ourApp.get("/", async (req, res) => {
   }
 });
 
-bookmark = (current_posStr) => {
-  console.log(current_posStr);
-};
-
-ourApp.post("/bookmark", async (req, res) => {
+ourApp.post("/addBookmark", async (req, res) => {
   try {
     const { current_posStr } = req.body;
+    let [surahNumber, ayahNumber] = current_posStr.split(":").map(Number);
+
     // Implement the logic to handle the bookmark action (e.g., save to database)
-    bookmark(current_posStr);
+    await Bookmark.addBookmark(User.studentId, User.courseId, surahNumber, ayahNumber);
+    res.status(200).send("Bookmark saved successfully");
+  } catch (error) {
+    console.error("Error handling bookmark:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+ourApp.post("/removeBookmark", async (req, res) => {
+  try {
+    const { current_posStr } = req.body;
+    let [surahNumber, ayahNumber] = current_posStr.split(":").map(Number);
+
+    // Implement the logic to handle the bookmark action (e.g., save to database)
+    await Bookmark.removeBookmark(User.studentId, User.courseId, surahNumber, ayahNumber);
     res.status(200).send("Bookmark saved successfully");
   } catch (error) {
     console.error("Error handling bookmark:", error);
