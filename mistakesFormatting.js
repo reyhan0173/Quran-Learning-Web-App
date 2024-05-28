@@ -21,7 +21,6 @@ async function hasMistake(surah_ayah){
 }
 
 async function addMistake(surahNumber, ayahNumber, newMistakes){
-    console.log('bieng added')
     try{
         const result = await AyahFormatting.findOne({
             where: {
@@ -51,4 +50,30 @@ async function addMistake(surahNumber, ayahNumber, newMistakes){
     }
 }
 
-module.exports = { hasMistake, addMistake, };
+
+async function removeMistake(surahNumber, ayahNumber, indexesToRemove) {
+    try {
+        const result = await AyahFormatting.findOne({
+            where: {
+                surahNumber: surahNumber,
+                ayahNumber: ayahNumber
+            }
+        });
+
+        if (result) {
+            let existingMistakes = result.mistakes || [];
+            // Filter out the indexes to remove
+            let updatedMistakes = existingMistakes.filter(index => !indexesToRemove.includes(index));
+
+            result.mistakes = updatedMistakes;
+            await result.save();
+            console.log(`Successfully removed mistakes for ${surahNumber}:${ayahNumber}`);
+        } else {
+            console.log(`No mistakes found for ${surahNumber}:${ayahNumber} to remove.`);
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+module.exports = { hasMistake, addMistake, removeMistake };

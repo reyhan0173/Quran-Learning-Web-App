@@ -17,8 +17,10 @@ ourApp.use(express.urlencoded({ extended: false }));
 ourApp.use(express.static("public"));
 ourApp.set("view engine", "ejs"); // Set EJS as the template engine
 
+
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
+
 
 async function getAyahCount(surahNumber) {
   try {
@@ -31,9 +33,11 @@ async function getAyahCount(surahNumber) {
     console.error(err);
   }
 }
+
+
 async function fetchVerse(ayah) {
   const verse_url = `https://api.quran.com/api/v4/quran/verses/indopak?verse_key=${ayah}`;
-  console.log(verse_url);
+  // console.log(verse_url);
 
   const response = await fetch(verse_url);
   if (!response.ok) {
@@ -47,15 +51,15 @@ async function fetchVerse(ayah) {
 async function renderAyahContainer(current_posStr, verse, recitor = 4, loop = 4) {
   let [surahNumber, ayahNumber] = current_posStr.split(":").map(Number);
 
-  console.log(User.studentId, User.courseId, surahNumber, ayahNumber);
+  // console.log(User.studentId, User.courseId, surahNumber, ayahNumber);
 
   let _isBookmarked = await Bookmark.isBookmarked(User.studentId, User.courseId, surahNumber, ayahNumber);
 
-  console.log(_isBookmarked);
+  // console.log(_isBookmarked);
 
   let mistakeIndexes = await Mistakes.hasMistake(current_posStr);
-  console.log(current_posStr);
-  console.log(mistakeIndexes);
+  // console.log(current_posStr);
+  // console.log(mistakeIndexes);
 
   let mistakesVerse = "";
 
@@ -87,9 +91,15 @@ async function renderAyahContainer(current_posStr, verse, recitor = 4, loop = 4)
           ${_isBookmarked ? "Unbookmark" : "Bookmark"}
         </button>
         <button
-          class="ayah-mark-mistake-button" onclick="mistake('${current_posStr}')"
+          class="ayah-add-mistake-button" onclick="addMistake('${current_posStr}')"
         >
-          Mark as Mistake
+          Add a Mistake
+        </button>
+        
+        <button
+          class="ayah-remove-mistake-button" onclick="removeMistake('${current_posStr}')"
+        >
+          Remove a Mistake
         </button>
       </div>
 
@@ -103,6 +113,7 @@ async function renderAyahContainer(current_posStr, verse, recitor = 4, loop = 4)
     </div>
   `;
 }
+
 
 async function getAyahsText(start_pos, end_pos) {
   start_pos = start_pos.split(":").map(Number);
@@ -135,6 +146,7 @@ async function getAyahsText(start_pos, end_pos) {
   return htmlContent;
 }
 
+
 ourApp.get("/", async (req, res) => {
   try {
     const START_POSITION = "5:8";
@@ -146,7 +158,6 @@ ourApp.get("/", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
 ourApp.post("/addBookmark", async (req, res) => {
   try {
     const { current_posStr } = req.body;
@@ -160,7 +171,6 @@ ourApp.post("/addBookmark", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
 ourApp.post("/removeBookmark", async (req, res) => {
   try {
     const { current_posStr } = req.body;
@@ -184,6 +194,19 @@ ourApp.post("/addMistake", async (req, res) => {
     res.status(200).send("Mistake added successfully");
   } catch (error) {
     console.error("Error adding mistake:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+ourApp.post("/removeMistake", async (req, res) => {
+  try {
+    const { current_posStr, mistakeIndexes } = req.body;
+    let [surahNumber, ayahNumber] = current_posStr.split(":").map(Number);
+
+    // Implement the logic to handle removing mistakes (e.g., update database)
+    await Mistakes.removeMistake(surahNumber, ayahNumber, mistakeIndexes);
+    res.status(200).send("Mistake removed successfully");
+  } catch (error) {
+    console.error("Error removing mistake:", error);
     res.status(500).send("Internal Server Error");
   }
 });

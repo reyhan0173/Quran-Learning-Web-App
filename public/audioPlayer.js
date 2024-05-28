@@ -115,7 +115,7 @@ async function bookmark(current_posStr) {
   }
 }
 
-async function mistake(current_posStr) {
+async function addMistake(current_posStr) {
   const selection = window.getSelection();
   if (selection.rangeCount === 0) {
     alert("Please select text to mark as a mistake.");
@@ -128,12 +128,15 @@ async function mistake(current_posStr) {
     return;
   }
 
+  console.log(`Selected Text: "${selectedText}"`);
+
   // Find the specific verse element
   const ayahElement = document.querySelector(`[data-url='${current_posStr}'] .ayah`);
   if (!ayahElement) {
     alert("Error: Could not find the selected verse.");
     return;
   }
+  
 
   const ayahText = ayahElement.textContent;
   const range = selection.getRangeAt(0);
@@ -146,6 +149,9 @@ async function mistake(current_posStr) {
 
   const startContainer = range.startContainer;
   const startOffset = range.startOffset;
+
+  console.log(`Start Container Text: "${startContainer.textContent}", Start Offset: ${startOffset}`);
+  
   let startIndex = -1;
 
   // Calculate the start index based on the character offset within the ayah text
@@ -187,4 +193,94 @@ async function mistake(current_posStr) {
     alert("Error adding mistake");
   }
 }
+
+async function removeMistake(current_posStr) {
+  const selection = window.getSelection();
+  if (selection.rangeCount === 0) {
+    alert("Please select text to remove as a mistake.");
+    return;
+  }
+
+  const selectedText = selection.toString();
+  if (!selectedText) {
+    alert("Please select text to remove as a mistake.");
+    return;
+  }
+
+  console.log(`Selected Text to remove: "${selectedText}"`);
+
+  // Find the specific verse element
+  const ayahElement = document.querySelector(`[data-url='${current_posStr}'] .ayah`);
+  if (!ayahElement) {
+    alert("Error: Could not find the selected verse.");
+    return;
+  }
+
+  const ayahText = ayahElement.textContent; // Original verse text without spans
+  const displayedText = ayahElement.innerText; // Text displayed in the verse (includes spans)
+
+  // Debug: Log the full verse text
+  console.log(`Full Verse Text: "${ayahText}"`);
+  console.log(`text no tags: "${displayedText}"`);
+  
+  const range = selection.getRangeAt(0);
+
+  // Check if the selection is within the ayah element
+  if (!ayahElement.contains(range.commonAncestorContainer)) {
+    alert("Error: Selected text is not within the correct verse.");
+    return;
+  }
+
+  const startContainer = range.startContainer;
+  const startOffset = range.startOffset;
+  let startIndex = -1;
+
+  // Calculate the start index based on the character offset within the ayah text
+  if (startContainer.nodeType === Node.TEXT_NODE) {
+    startIndex = Array.from(ayahElement.childNodes).reduce((acc, node) => {
+      if (node === startContainer) {
+        return acc + startOffset;
+      } else {
+        // If the node is a text node, use its text content; otherwise, skip it
+        const nodeText = node.nodeType === Node.TEXT_NODE ? node.textContent : '';
+        return acc + nodeText.length;
+      }
+    }, 0);
+  }
+
+  // Check if the selected text matches the displayed text in the verse
+  if (
+      startIndex === -1 ||
+      displayedText.substring(startIndex, startIndex + selectedText.length) !== selectedText
+  ) {
+    alert("Error: Selected text not found in the verse.");
+    return;
+  }
+
+  const mistakeIndexes = [];
+  for (let i = startIndex; i < startIndex + selectedText.length; i++) {
+    mistakeIndexes.push(i);
+  }
+
+  // Send mistake indexes to the server for removal
+  try {
+    const response = await fetch("/removeMistake", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ current_posStr, mistakeIndexes }),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to remove mistake");
+    }
+    alert("Mistake removed successfully");
+  } catch (error) {
+    console.error("Error removing mistake:", error);
+    alert("Error removing mistake");
+  }
+}
+
+
+
 
