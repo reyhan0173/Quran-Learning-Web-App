@@ -75,6 +75,7 @@ async function renderAyahContainer(current_posStr, verse, recitor=4, loop=4) {
     <div class="ayah-container ${
       _isBookmarked ? "isBookmarked" : ""
     }" data-url="${current_posStr}">
+
       <div class="ayah-controls">
         <button data-ayahId="${current_posStr}"
           class="ayah-control-button" data-loop="${loop}"
@@ -89,7 +90,7 @@ async function renderAyahContainer(current_posStr, verse, recitor=4, loop=4) {
         </button>
       </div>
 
-      <div class="ayah_con">
+      <div class="ayah-con">
       <p class="ayah">${mistakesVerse ? mistakesVerse : verse}</p> <!-- Display highlighted verse if available, otherwise display original verse -->
       </div>
       <div class="number-input-container">
@@ -138,7 +139,7 @@ async function getAyahsText(start_pos, end_pos) {
 ourApp.get("/", async (req, res) => {
   try {
     const START_POSITION = "5:8";
-    const END_POSITION = "5:20";
+    const END_POSITION = "5:10";
     const ayaHtml = await getAyahsText(START_POSITION, END_POSITION);
     res.render("index", { ayaHtml });
   } catch (err) {
