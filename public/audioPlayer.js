@@ -1,6 +1,10 @@
-function toggleAyahList() {
-  const ayahList = document.getElementById("ayah-list");
-  const upIcon = document.querySelector(".player-up-icon");
+function toggleAyahList(buttonElement) {
+  console.log(buttonElement)
+  const player = buttonElement.parentElement.querySelector(".single-player-2")
+  console.log(player);
+
+  const ayahList = player.querySelector('#ayah-list');
+  console.log(ayahList);
 
   // Check if the ayahList element is hidden
   const isHidden = ayahList.classList.contains("hidden");
@@ -10,9 +14,9 @@ function toggleAyahList() {
 
   // Toggle the icon based on the visibility of the ayahList
   if (isHidden) {
-    upIcon.innerHTML = `<i class="fa fa-chevron-down down-icon"></i>`;
+    buttonElement.innerHTML = `<i class="fa fa-chevron-down down-icon"></i>`;
   } else {
-    upIcon.innerHTML = `<i class="fa fa-chevron-up up-icon"></i>`;
+    buttonElement.innerHTML = `<i class="fa fa-chevron-up up-icon"></i>`;
   }
 }
 
@@ -22,9 +26,14 @@ function trackNumberInput(loopElement, newValue) {
     .querySelector(".ayah-control-button")
     .setAttribute("data-loop", newValue);
 
+  console.log(loopElement)
+  loopElement.setAttribute('value', newValue)
+  console.log(loopElement)
+
   const loopCounterElement =
     loopElement.parentElement.querySelector(".loop-counter");
   loopCounterElement.setAttribute("data-loop", newValue);
+  
   let count = loopCounterElement.getAttribute("data-count");
   loopCounterElement.textContent = `${count}/${newValue}`;
 }
@@ -46,13 +55,11 @@ async function fetchAudioUrl(ayahId, recitor) {
 async function playPauseAudio(buttonElement) {
   const playPauseBtn = document.getElementById("playPauseBtn");
 
-  console.log(
-    buttonElement.parentElement.parentElement.querySelector(".loop-counter")
-  );
+  console.log(buttonElement.parentElement.parentElement);
 
   let recitor = 4;
   let ayahId = buttonElement.getAttribute("data-ayahId");
-  let loop = buttonElement.getAttribute("data-loop");
+  console.log(ayahId);
 
   const loopCounterElement =
     buttonElement.parentElement.parentElement.querySelector(".loop-counter");
@@ -62,55 +69,62 @@ async function playPauseAudio(buttonElement) {
     console.log("Audio element not found");
   }
 
+  console.log(audioElement.getAttribute('prev_ayah'))
+  console.log(audioElement.getAttribute('prev_recitor'))
   if (
-    ayahId == audioElement.prev_ayah &&
-    recitor == audioElement.prev_recitor
+    ayahId == audioElement.getAttribute('prev_ayah') &&
+    recitor == audioElement.getAttribute('prev_recitor')
   ) {
-    console.log("paused");
-    audioElement.pause();
-    audioElement.prev_ayah = "";
-    audioElement.prev_recitor = "";
-    playPauseBtn.innerHTML = '<i class="fa fa-play play-icon"></i>';
+    if (audioElement.paused) {
+      audioElement.play();
+      playPauseBtn.innerHTML = '<i class="fa fa-pause pause-icon"></i>';
+
+    } else {
+      audioElement.pause();
+      playPauseBtn.innerHTML = '<i class="fa fa-play play-icon"></i>';
+    }
     return;
+  } else {
+    audioElement.src = await fetchAudioUrl(ayahId, recitor);
+    audioElement.setAttribute('prev_ayah', ayahId);
+    audioElement.setAttribute('prev_ayah_clone', ayahId);
+    audioElement.setAttribute('prev_recitor', recitor);
   }
 
+  console.log(audioElement.getAttribute('prev_ayah'))
+  console.log(audioElement.getAttribute('prev_recitor'))
+
+  console.log(`data-count: ${loopCounterElement.getAttribute("data-count")}`);
+
   let i = loopCounterElement.getAttribute("data-count");
+  let loop = buttonElement.getAttribute("data-loop");
   if (i >= loop || i == 0) {
     i = 0;
     loopCounterElement.setAttribute("data-count", 0);
     loopCounterElement.textContent = `${i}/${loop}`;
   }
 
+
   while (i < loop) {
     console.log("played");
-    if (
-      audioElement.prev_src_ayah != ayahId ||
-      audioElement.prev_src_recitor != recitor
-    ) {
-      audioElement.src = await fetchAudioUrl(ayahId, recitor);
-
-      audioElement.prev_src_ayah = ayahId;
-      audioElement.prev_src_recitor = recitor;
-    }
-
     await audioElement.play();
+    
     playPauseBtn.innerHTML = '<i class="fa fa-pause pause-icon"></i>';
-    audioElement.prev_ayah = ayahId;
-    audioElement.prev_recitor = recitor;
 
     await new Promise((resolve) => {
       audioElement.onended = resolve;
     });
 
     loop = buttonElement.getAttribute("data-loop");
-    loopCounterElement.textContent = `${i + 1}/${loop}`;
-    loopCounterElement.setAttribute("data-count", i + 1);
+    loopCounterElement.textContent = `${Number(i) + 1}/${loop}`;
+    loopCounterElement.setAttribute("data-count", Number(i) + 1);
+
     i++;
   }
 
   console.log("paused");
-  audioElement.prev_ayah = "";
-  audioElement.prev_recitor = "";
+  audioElement.setAttribute('prev_ayah', 'None');
+  audioElement.setAttribute('prev_recitor', 'None');
 }
 
 async function bookmark(current_posStr) {
@@ -118,6 +132,7 @@ async function bookmark(current_posStr) {
   const buttonElement = document.querySelector(
     `[data-url='${current_posStr}'] .ayah-bookmark-button`
   );
+
   console.log(buttonElement);
   const isBookmarked =
     buttonElement.parentElement.parentElement.classList.contains(
@@ -205,6 +220,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Reset play button when audio ends
   audio.addEventListener("ended", function () {
+    let ayahId = audio.getAttribute("prev_ayah_clone");
+    console.log(ayahId);
+
+    let ayahListLoop = document.querySelector(`.ayah-list-loop[data-url="${ayahId}"]`);
+    console.log(ayahListLoop);
+
+    let ayahListCounter = ayahListLoop.querySelector(".loop-SummaryCounter");
+    console.log(ayahListCounter);
+
+    let dataCounter = ayahListCounter.getAttribute("data-counter");
+    ayahListCounter.setAttribute("data-counter", Number(dataCounter) + 1);
+    ayahListCounter.textContent = `${Number(dataCounter) + 1}`
+
     playPauseBtn.innerHTML = '<i class="fa fa-play play-icon"></i>';
   });
 });
