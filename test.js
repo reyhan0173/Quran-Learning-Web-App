@@ -1,6 +1,5 @@
 const express = require("express");
 const ourApp = express();
-const { promisify } = require("util");
 const Surah = require("./Surah");
 const Mistakes = require("./mistakesFormatting");
 const Bookmark = require("./bookmarkFormatting");
@@ -18,8 +17,10 @@ ourApp.use(express.urlencoded({ extended: false }));
 ourApp.use(express.static("public"));
 ourApp.set("view engine", "ejs"); // Set EJS as the template engine
 
+
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
+
 
 async function getAyahCount(surahNumber) {
   try {
@@ -32,9 +33,11 @@ async function getAyahCount(surahNumber) {
     console.error(err);
   }
 }
+
+
 async function fetchVerse(ayah) {
   const verse_url = `https://api.quran.com/api/v4/quran/verses/indopak?verse_key=${ayah}`;
-  console.log(verse_url);
+  // console.log(verse_url);
 
   const response = await fetch(verse_url);
   if (!response.ok) {
@@ -44,13 +47,11 @@ async function fetchVerse(ayah) {
   return data.verses[0].text_indopak;
 }
 
-async function renderAyahContainer(
-  current_posStr,
-  verse,
-  recitor = 4,
-  loop = 4
-) {
+
+async function renderAyahContainer(current_posStr, verse, recitor = 4, loop = 4) {
   let [surahNumber, ayahNumber] = current_posStr.split(":").map(Number);
+
+  // console.log(User.studentId, User.courseId, surahNumber, ayahNumber);
 
   console.log(User.studentId, User.courseId, surahNumber, ayahNumber);
 
@@ -99,6 +100,17 @@ async function renderAyahContainer(
         >
           ${_isBookmarked ? "Unbookmark" : "Bookmark"}
         </button>
+        <button
+          class="ayah-add-mistake-button" onclick="addMistake('${current_posStr}')"
+        >
+          Add a Mistake
+        </button>
+        
+        <button
+          class="ayah-remove-mistake-button" onclick="removeMistake('${current_posStr}')"
+        >
+          Remove a Mistake
+        </button>
       </div>
 
       <div class="ayah-con">
@@ -125,6 +137,7 @@ async function renderAyahContainer(
 
   return [ayahContainer, ayahSummary];
 }
+
 
 async function getAyahsText(start_pos, end_pos) {
   start_pos = start_pos.split(":").map(Number);
@@ -164,6 +177,7 @@ async function getAyahsText(start_pos, end_pos) {
   return [htmlContent, ayahSummary];
 }
 
+
 ourApp.get("/", async (req, res) => {
   try {
     const START_POSITION = "5:8";
@@ -177,7 +191,6 @@ ourApp.get("/", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
 ourApp.post("/addBookmark", async (req, res) => {
   try {
     const { current_posStr } = req.body;
@@ -196,7 +209,6 @@ ourApp.post("/addBookmark", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
 ourApp.post("/removeBookmark", async (req, res) => {
   try {
     const { current_posStr } = req.body;
@@ -212,6 +224,32 @@ ourApp.post("/removeBookmark", async (req, res) => {
     res.status(200).send("Bookmark saved successfully");
   } catch (error) {
     console.error("Error handling bookmark:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+ourApp.post("/addMistake", async (req, res) => {
+  try {
+    const { current_posStr, mistakeIndexes } = req.body;
+    let [surahNumber, ayahNumber] = current_posStr.split(":").map(Number);
+
+    // Implement the logic to handle adding mistakes (e.g., save to database)
+    await Mistakes.addMistake(surahNumber, ayahNumber, mistakeIndexes);
+    res.status(200).send("Mistake added successfully");
+  } catch (error) {
+    console.error("Error adding mistake:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+ourApp.post("/removeMistake", async (req, res) => {
+  try {
+    const { current_posStr, mistakeIndexes } = req.body;
+    let [surahNumber, ayahNumber] = current_posStr.split(":").map(Number);
+
+    // Implement the logic to handle removing mistakes (e.g., update database)
+    await Mistakes.removeMistake(surahNumber, ayahNumber, mistakeIndexes);
+    res.status(200).send("Mistake removed successfully");
+  } catch (error) {
+    console.error("Error removing mistake:", error);
     res.status(500).send("Internal Server Error");
   }
 });
