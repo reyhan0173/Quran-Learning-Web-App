@@ -4,15 +4,140 @@
     <title>Quran App Test</title>
     <link rel="stylesheet" href="main.css" />
     <script src="/audioPlayer.js"></script>
+    <script src="/recorder.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
   </head>
-  
+
   <body>
     <header></header>
     <main>
-      <div>
-        <%- ayaHtml %>
+      <%- ayahHtml %>
+      <div class="audio-player">
+        <audio
+          id="audioPlayer"
+          data-loop="true"
+          src=""
+          prev_ayah_clone="None"
+          prev_ayah="None"
+          prev_recitor="None"
+          controls
+        >
+          <source src type="audio/mpeg" />
+          Your browser does not support the audio element.
+        </audio>
+
+        <div class="players">
+          <div class="single-player">
+            <button
+              id="up-arrow"
+              class="player-up-icon icon-Btn"
+              onclick="toggleAyahList(this)"
+            >
+              <i class="fa fa-chevron-up up-icon"></i>
+            </button>
+
+            <div class="single-player-2">
+              <div id="ayah-list" class="ayah-list hidden">
+                <!-- Ayah summary list goes here -->
+                <div class="ayah-summary">
+                  <div class="ayah-list-num">Ayah</div>
+                  <div class="ayah-list-loop">Count</div>
+                </div>
+                <%- ayahSummary %>
+              </div>
+
+              <input type="range" id="seekBar" value="0" />
+
+              <div class="timeRange">
+                <div class="currentTime" id="currentTime">0:00</div>
+
+                <button
+                  id="playPauseBtn"
+                  class="playPauseBtn icon-Btn"
+                  disabled
+                >
+                  <i class="fa fa-play play-icon"></i>
+                </button>
+
+                <div class="totalDuration" id="totalDuration">0:00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="players">
+          <div class="single-player">
+            <div class="single-player-2">
+              <div id="ayah-list" class="ayah-list hidden">
+                <!-- Ayah summary list goes here -->
+                <div class="ayah-summary">
+                  <div class="ayah-list-num">Ayah</div>
+                  <div class="ayah-list-loop">Count</div>
+                </div>
+                <%- ayahSummary %>
+              </div>
+
+              <div class="timeRange record-section">
+                <!-- <button id="ellipsisBtn" class="ellipsisBtn icon-Btn">
+                  <i class="fa fa-ellipsis-h ellipsisBtn-icon"></i>
+                </button> -->
+
+                <button
+                  id="recordBtn"
+                  class="recordBtn icon-Btn"
+                  onclick="startRecording()"
+                >
+                  <i class="fa fa-microphone play-icon"></i>
+                </button>
+
+                <button
+                  id="recordPlayBtn"
+                  class="recordPlayBtn icon-Btn"
+                  onclick="playRecording()"
+                  disabled
+                >
+                  <i class="fa fa-play recordPlayBtn-icon"></i>
+                </button>
+
+                <button
+                  id="recordSubmitBtn"
+                  class="recordSubmitBtn icon-Btn"
+                  onclick="submitRecording()"
+                  disabled
+                >
+                  <i class="fa fa-check recordSubmitBtn-icon"></i>
+                </button>
+
+                <button
+                  id="recordTrashBtn"
+                  class="recordTrashBtn icon-Btn"
+                  onclick="trashRecordings()"
+                >
+                  <i class="fa fa-trash recordTrashBtn-icon"></i>
+                </button>
+
+                <audio
+                  id="audioPlayback"
+                  class="hidden"
+                  controls
+                  style="display: none"
+                ></audio>
+              </div>
+            </div>
+
+            <button
+              id="up-arrow"
+              class="player-up-icon icon-Btn"
+              onclick="toggleAyahList(this)"
+            >
+              <i class="fa fa-chevron-up up-icon"></i>
+            </button>
+          </div>
+        </div>
       </div>
-      <audio id="audioPlayer" data-loop="true" prev_src_ayah="" prev_src_recitor="" src="" prev_ayah="" prev_recitor="" controls></audio>
     </main>
   </body>
 </html>

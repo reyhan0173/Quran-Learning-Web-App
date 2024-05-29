@@ -53,15 +53,24 @@ async function renderAyahContainer(current_posStr, verse, recitor = 4, loop = 4)
 
   // console.log(User.studentId, User.courseId, surahNumber, ayahNumber);
 
-  let _isBookmarked = await Bookmark.isBookmarked(User.studentId, User.courseId, surahNumber, ayahNumber);
+  console.log(User.studentId, User.courseId, surahNumber, ayahNumber);
 
-  // console.log(_isBookmarked);
+  let _isBookmarked = await Bookmark.isBookmarked(
+    User.studentId,
+    User.courseId,
+    surahNumber,
+    ayahNumber
+  );
+
+  console.log(_isBookmarked);
 
   let mistakeIndexes = await Mistakes.hasMistake(current_posStr);
-  // console.log(current_posStr);
-  // console.log(mistakeIndexes);
+  console.log(current_posStr);
+  console.log(mistakeIndexes);
 
-  let mistakesVerse = "";
+  let mistakesVerse = "",
+    ayahContainer,
+    ayahSummary;
 
   if (Array.isArray(mistakeIndexes)) {
     for (let i = 0; i < verse.length; i++) {
@@ -74,10 +83,11 @@ async function renderAyahContainer(current_posStr, verse, recitor = 4, loop = 4)
     }
   }
 
-  return `
+  ayahContainer = `
     <div class="ayah-container ${
       _isBookmarked ? "isBookmarked" : ""
-  }" data-url="${current_posStr}">
+    }" data-url="${current_posStr}">
+
       <div class="ayah-controls">
         <button data-ayahId="${current_posStr}"
           class="ayah-control-button" data-loop="${loop}"
@@ -103,8 +113,10 @@ async function renderAyahContainer(current_posStr, verse, recitor = 4, loop = 4)
         </button>
       </div>
 
-      <div class="ayah_con">
-      <p class="ayah">${mistakesVerse ? mistakesVerse : verse}</p> <!-- Display highlighted verse if available, otherwise display original verse -->
+      <div class="ayah-con">
+      <p class="ayah">${
+        mistakesVerse ? mistakesVerse : verse
+      }</p> <!-- Display highlighted verse if available, otherwise display original verse -->
       </div>
       <div class="number-input-container">
         <p class="loop-counter" data-count=0 data-loop=${loop}>0/${loop}</p>
@@ -112,6 +124,18 @@ async function renderAyahContainer(current_posStr, verse, recitor = 4, loop = 4)
       </div>
     </div>
   `;
+
+  ayahSummary = `
+    <div class="ayah-summary-${current_posStr} ayah-summary">
+      <div data-url="${current_posStr}" class="ayah-list-num">${current_posStr}</div>
+      <div class="ayah-list-loop" data-url="${current_posStr}">
+        <span class="loop-SummaryCounter" data-counter=0>0</span>/
+        <span class="loop-SummaryGoal" data-loop=${loop}>${loop}</span>
+      </div>
+    </div>
+  `;
+
+  return [ayahContainer, ayahSummary];
 }
 
 
@@ -136,23 +160,32 @@ async function getAyahsText(start_pos, end_pos) {
   }
 
   const verses = await Promise.all(promises);
-  let htmlContent = "";
-  
-  
+  let htmlContent = "",
+    ayahSummary = "";
+
+  // verses.forEach(({ current_posStr, verse }) => {
+  //   htmlContent +=  renderAyahContainer(current_posStr, verse);
+  //
+  // });
+
   for (const { current_posStr, verse } of verses) {
-    htmlContent += await renderAyahContainer(current_posStr, verse); // Wait for each call to finish before proceeding
+    _renderAyahContainer = await renderAyahContainer(current_posStr, verse); // Wait for each call to finish before proceeding
+    htmlContent += _renderAyahContainer[0];
+    ayahSummary += _renderAyahContainer[1];
   }
-  
-  return htmlContent;
+
+  return [htmlContent, ayahSummary];
 }
 
 
 ourApp.get("/", async (req, res) => {
   try {
     const START_POSITION = "5:8";
-    const END_POSITION = "5:20";
-    const ayaHtml = await getAyahsText(START_POSITION, END_POSITION);
-    res.render("index", { ayaHtml });
+    const END_POSITION = "5:10";
+    const ayah = await getAyahsText(START_POSITION, END_POSITION);
+    const ayahHtml = ayah[0];
+    const ayahSummary = ayah[1];
+    res.render("index", { ayahHtml, ayahSummary });
   } catch (err) {
     console.error("Error: ", err);
     res.status(500).send("Internal Server Error");
@@ -164,7 +197,12 @@ ourApp.post("/addBookmark", async (req, res) => {
     let [surahNumber, ayahNumber] = current_posStr.split(":").map(Number);
 
     // Implement the logic to handle the bookmark action (e.g., save to database)
-    await Bookmark.addBookmark(User.studentId, User.courseId, surahNumber, ayahNumber);
+    await Bookmark.addBookmark(
+      User.studentId,
+      User.courseId,
+      surahNumber,
+      ayahNumber
+    );
     res.status(200).send("Bookmark saved successfully");
   } catch (error) {
     console.error("Error handling bookmark:", error);
@@ -177,7 +215,12 @@ ourApp.post("/removeBookmark", async (req, res) => {
     let [surahNumber, ayahNumber] = current_posStr.split(":").map(Number);
 
     // Implement the logic to handle the bookmark action (e.g., save to database)
-    await Bookmark.removeBookmark(User.studentId, User.courseId, surahNumber, ayahNumber);
+    await Bookmark.removeBookmark(
+      User.studentId,
+      User.courseId,
+      surahNumber,
+      ayahNumber
+    );
     res.status(200).send("Bookmark saved successfully");
   } catch (error) {
     console.error("Error handling bookmark:", error);
