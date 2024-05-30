@@ -10,7 +10,7 @@ cursor = conn.cursor()
 # Open a text file to write the single SQL insert statement
 with open('quran_inserts.txt', 'w', encoding='utf-8') as f:
     # Initialize the insert statement
-    insert_statement = "INSERT INTO `Quran_Explorer`.`ayah` VALUES "
+    insert_statement = "INSERT INTO `Quran_Explorer`.`ayahInfo` VALUES "
     
     # Fetch Surah names and their Ayah counts from the database
     cursor.execute("SELECT SurahNumber, SurahName, AyahCount FROM SurahAyahCount")
