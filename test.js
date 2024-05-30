@@ -4,7 +4,7 @@ const Surah = require("./Surah");
 const Mistakes = require("./mistakesFormatting");
 const Bookmark = require("./bookmarkFormatting");
 ourApp.use(express.json());
-const AyahInfo = require('./AyahInfo'); // Import the AyahInfo model
+const AyahInfo = require("./AyahInfo"); // Import the AyahInfo model
 
 const portNumber = 5001;
 
@@ -18,10 +18,8 @@ ourApp.use(express.urlencoded({ extended: false }));
 ourApp.use(express.static("public"));
 ourApp.set("view engine", "ejs"); // Set EJS as the template engine
 
-
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
-
 
 async function getAyahCount(surahNumber) {
   try {
@@ -34,8 +32,6 @@ async function getAyahCount(surahNumber) {
     console.error(err);
   }
 }
-
-
 
 async function fetchVerse(surahNumber, ayahNumber) {
   try {
@@ -50,7 +46,12 @@ async function fetchVerse(surahNumber, ayahNumber) {
   }
 }
 
-async function renderAyahContainer(current_posStr, verse, recitor = 4, loop = 4) {
+async function renderAyahContainer(
+  current_posStr,
+  verse,
+  recitor = 4,
+  loop = 4
+) {
   let [surahNumber, ayahNumber] = current_posStr.split(":").map(Number);
 
   // console.log(User.studentId, User.courseId, surahNumber, ayahNumber);
@@ -140,7 +141,6 @@ async function renderAyahContainer(current_posStr, verse, recitor = 4, loop = 4)
   return [ayahContainer, ayahSummary];
 }
 
-
 async function getAyahsText(start_pos, end_pos) {
   start_pos = start_pos.split(":").map(Number);
   end_pos = end_pos.split(":").map(Number);
@@ -155,7 +155,10 @@ async function getAyahsText(start_pos, end_pos) {
     } else {
       let current_posStr = `${current_pos[0]}:${current_pos[1]}`;
       promises.push(
-        fetchVerse(current_pos[0], current_pos[1]).then((verse) => ({ current_posStr, verse }))
+        fetchVerse(current_pos[0], current_pos[1]).then((verse) => ({
+          current_posStr,
+          verse,
+        }))
       );
       current_pos[1] += 1;
     }
@@ -178,7 +181,6 @@ async function getAyahsText(start_pos, end_pos) {
 
   return [htmlContent, ayahSummary];
 }
-
 
 ourApp.get("/", async (req, res) => {
   try {
