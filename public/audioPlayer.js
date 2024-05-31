@@ -327,6 +327,7 @@ async function addMistake(current_posStr) {
       throw new Error("Failed to add mistake");
     }
     alert("Mistake marked successfully");
+    location.reload();
   } catch (error) {
     console.error("Error adding mistake:", error);
     alert("Error adding mistake");
@@ -440,6 +441,7 @@ async function removeMistake(current_posStr) {
       throw new Error("Failed to remove mistake");
     }
     alert("Mistake removed successfully");
+    location.reload();
   } catch (error) {
     console.error("Error removing mistake:", error);
     alert("Error removing mistake");
