@@ -2,7 +2,6 @@ import React, {useState, useEffect} from "react";
 
 const AyahContainer = ({current_posStr}) => {
     
-    const [ayahs, setAyahs] = useState([]);
     const [loopCount, setLoopCount] = useState(4);
     const [isBookmarked, setIsBookmarked] = useState(false);
     const [mistakeIndexes, setMistakeIndexes] = useState([]);

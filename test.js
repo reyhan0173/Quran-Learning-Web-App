@@ -147,6 +147,7 @@ async function getAyahsText(start_pos, end_pos) {
 
   let current_pos = start_pos;
   let promises = [];
+  let htmlContent = "";
 
   while (current_pos[0] !== end_pos[0] || current_pos[1] !== end_pos[1] + 1) {
     if (current_pos[1] > (await getAyahCount(current_pos[0]))) {
@@ -154,42 +155,78 @@ async function getAyahsText(start_pos, end_pos) {
       current_pos[1] = 1;
     } else {
       let current_posStr = `${current_pos[0]}:${current_pos[1]}`;
-      promises.push(
-        fetchVerse(current_pos[0], current_pos[1]).then((verse) => ({
-          current_posStr,
-          verse,
-        }))
-      );
+      const verse = await fetchVerse(current_pos[0], current_pos[1]);
+      const [ayahContainer, ayahSummary] = await renderAyahContainer(current_posStr, verse);
+      htmlContent += ayahContainer;
       current_pos[1] += 1;
     }
   }
 
-  const verses = await Promise.all(promises);
-  let htmlContent = "",
-    ayahSummary = "";
-
-  // verses.forEach(({ current_posStr, verse }) => {
-  //   htmlContent +=  renderAyahContainer(current_posStr, verse);
-  //
-  // });
-
-  for (const { current_posStr, verse } of verses) {
-    _renderAyahContainer = await renderAyahContainer(current_posStr, verse); // Wait for each call to finish before proceeding
-    htmlContent += _renderAyahContainer[0];
-    ayahSummary += _renderAyahContainer[1];
-  }
-
-  return [htmlContent, ayahSummary];
+  return htmlContent;
 }
+
+
+// async function getAyahsText(start_pos, end_pos) {
+//   start_pos = start_pos.split(":").map(Number);
+//   end_pos = end_pos.split(":").map(Number);
+//
+//   let current_pos = start_pos;
+//   let promises = [];
+//
+//   while (current_pos[0] !== end_pos[0] || current_pos[1] !== end_pos[1] + 1) {
+//     if (current_pos[1] > (await getAyahCount(current_pos[0]))) {
+//       current_pos[0] += 1;
+//       current_pos[1] = 1;
+//     } else {
+//       let current_posStr = `${current_pos[0]}:${current_pos[1]}`;
+//       promises.push(
+//         fetchVerse(current_pos[0], current_pos[1]).then((verse) => ({
+//           current_posStr,
+//           verse,
+//         }))
+//       );
+//       current_pos[1] += 1;
+//     }
+//   }
+//
+//   const verses = await Promise.all(promises);
+//   let htmlContent = "",
+//     ayahSummary = "";
+//
+//   // verses.forEach(({ current_posStr, verse }) => {
+//   //   htmlContent +=  renderAyahContainer(current_posStr, verse);
+//   //
+//   // });
+//
+//   for (const { current_posStr, verse } of verses) {
+//     _renderAyahContainer = await renderAyahContainer(current_posStr, verse); // Wait for each call to finish before proceeding
+//     htmlContent += _renderAyahContainer[0];
+//     ayahSummary += _renderAyahContainer[1];
+//   }
+//
+//   return [htmlContent, ayahSummary];
+// }
+
+// ourApp.get("/", async (req, res) => {
+//   try {
+//     const START_POSITION = "5:8";
+//     const END_POSITION = "5:10";
+//     const ayah = await getAyahsText(START_POSITION, END_POSITION);
+//     const ayahHtml = ayah[0];
+//     const ayahSummary = ayah[1];
+//     res.render("index", { ayahHtml, ayahSummary });
+//   } catch (err) {
+//     console.error("Error: ", err);
+//     res.status(500).send("Internal Server Error");
+//   }
+// });
 
 ourApp.get("/", async (req, res) => {
   try {
     const START_POSITION = "5:8";
     const END_POSITION = "5:10";
-    const ayah = await getAyahsText(START_POSITION, END_POSITION);
-    const ayahHtml = ayah[0];
-    const ayahSummary = ayah[1];
-    res.render("index", { ayahHtml, ayahSummary });
+    const ayahHtml = await getAyahsText(START_POSITION, END_POSITION);
+    res.send(ayahHtml);
   } catch (err) {
     console.error("Error: ", err);
     res.status(500).send("Internal Server Error");
