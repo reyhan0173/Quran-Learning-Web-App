@@ -236,6 +236,7 @@ document.addEventListener("DOMContentLoaded", function () {
     playPauseBtn.innerHTML = '<i class="fa fa-play play-icon"></i>';
   });
 });
+
 async function addMistake(current_posStr) {
   const selection = window.getSelection();
   if (selection.rangeCount === 0) {

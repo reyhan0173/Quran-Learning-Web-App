@@ -141,29 +141,6 @@ async function renderAyahContainer(
   return [ayahContainer, ayahSummary];
 }
 
-async function getAyahsText(start_pos, end_pos) {
-  start_pos = start_pos.split(":").map(Number);
-  end_pos = end_pos.split(":").map(Number);
-
-  let current_pos = start_pos;
-  let promises = [];
-  let htmlContent = "";
-
-  while (current_pos[0] !== end_pos[0] || current_pos[1] !== end_pos[1] + 1) {
-    if (current_pos[1] > (await getAyahCount(current_pos[0]))) {
-      current_pos[0] += 1;
-      current_pos[1] = 1;
-    } else {
-      let current_posStr = `${current_pos[0]}:${current_pos[1]}`;
-      const verse = await fetchVerse(current_pos[0], current_pos[1]);
-      const [ayahContainer, ayahSummary] = await renderAyahContainer(current_posStr, verse);
-      htmlContent += ayahContainer;
-      current_pos[1] += 1;
-    }
-  }
-
-  return htmlContent;
-}
 
 
 // async function getAyahsText(start_pos, end_pos) {
@@ -198,7 +175,9 @@ async function getAyahsText(start_pos, end_pos) {
 //   //
 //   // });
 //
-//   for (const { current_posStr, verse } of verses) {
+//   for (const { current_posStr, verse } of verses) { 
+//    
+//     // Send verse and current_posStr to AyahContainer React Component
 //     _renderAyahContainer = await renderAyahContainer(current_posStr, verse); // Wait for each call to finish before proceeding
 //     htmlContent += _renderAyahContainer[0];
 //     ayahSummary += _renderAyahContainer[1];
@@ -206,6 +185,45 @@ async function getAyahsText(start_pos, end_pos) {
 //
 //   return [htmlContent, ayahSummary];
 // }
+
+async function getAyahData(start_pos, end_pos) {
+  start_pos = start_pos.split(":").map(Number);
+  end_pos = end_pos.split(":").map(Number);
+
+  let current_pos = start_pos;
+  let promises = [];
+
+  while (current_pos[0] !== end_pos[0] || current_pos[1] !== end_pos[1] + 1) {
+    if (current_pos[1] > (await getAyahCount(current_pos[0]))) {
+      current_pos[0] += 1;
+      current_pos[1] = 1;
+    } else {
+      let current_posStr = `${current_pos[0]}:${current_pos[1]}`;
+      promises.push(
+          (async () => {
+            const verse = await fetchVerse(current_pos[0], current_pos[1]);
+            const mistakes = await Mistakes.hasMistake(current_posStr);
+            const isBookmarked = await Bookmark.isBookmarked(
+                User.studentId,
+                User.courseId,
+                current_pos[0],
+                current_pos[1]
+            );
+            return {
+              current_posStr,
+              verse,
+              mistakes,
+              isBookmarked
+            };
+          })()
+      );
+      current_pos[1] += 1;
+    }
+  }
+  
+  const ayahsData = await Promise.all(promises);
+  return ayahsData;
+}
 
 // ourApp.get("/", async (req, res) => {
 //   try {
@@ -221,17 +239,20 @@ async function getAyahsText(start_pos, end_pos) {
 //   }
 // });
 
-ourApp.get("/", async (req, res) => {
+ourApp.get("/hello", async (req, res) => {
   try {
     const START_POSITION = "5:8";
     const END_POSITION = "5:10";
-    const ayahHtml = await getAyahsText(START_POSITION, END_POSITION);
-    res.send(ayahHtml);
+    const ayahData = await getAyahData(START_POSITION, END_POSITION);
+    console.log(ayahData)
+    res.json(ayahData); // Respond with JSON data
+    console.log(ayahData)
   } catch (err) {
     console.error("Error: ", err);
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({ error: "Internal Server Error" }); // Respond with JSON error message
   }
 });
+
 ourApp.post("/addBookmark", async (req, res) => {
   try {
     const { current_posStr } = req.body;
