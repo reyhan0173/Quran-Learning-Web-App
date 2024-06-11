@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const ourApp = express();
 const Surah = require("./Surah");
 const Mistakes = require("./mistakesFormatting");
@@ -6,7 +7,7 @@ const Bookmark = require("./bookmarkFormatting");
 ourApp.use(express.json());
 const AyahInfo = require("./AyahInfo"); // Import the AyahInfo model
 
-const portNumber = 5001;
+const portNumber = 5000;
 
 const User = {
   studentId: 1111115,
@@ -16,6 +17,7 @@ const User = {
 // Serve static files from the 'public' directory
 ourApp.use(express.urlencoded({ extended: false }));
 ourApp.use(express.static("public"));
+ourApp.use(cors())
 ourApp.set("view engine", "ejs"); // Set EJS as the template engine
 
 const fetch = (...args) =>
