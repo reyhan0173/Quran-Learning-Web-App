@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
+import { useAudioPlayer } from './AudioPlayerContext'; // Import the context
+const RECITER = 3;
 
 const AyahContainer = ({ ayahData }) => {
     const { current_posStr, verse, mistakes: initialMistakes, isBookmarked: initialIsBookmarked, loop: initialLoop } = ayahData;
@@ -6,12 +8,24 @@ const AyahContainer = ({ ayahData }) => {
     const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked);
     const [loop, setLoop] = useState(initialLoop);
 
-    useEffect(() => {
-        // Optionally, update component when ayahData changes
-        setMistakes(initialMistakes);
-        setIsBookmarked(initialIsBookmarked);
-        setLoop(initialLoop);
-    }, [ayahData]);
+    const { currentAyah, isPlaying, updateAyah } = useAudioPlayer(); // Destructure currentAyah, isPlaying, and updateAyah from the context
+
+    const fetchAudioUrl = async (ayahId, reciter) => {
+        const api = `https://api.quran.com/api/v4/recitations/${reciter}/by_ayah/${ayahId}`;
+        const response = await fetch(api);
+        if (!response.ok) {
+            throw new Error("Failed to fetch data: " + response.statusText);
+        }
+        const data = await response.json();
+        const directory = data.audio_files[0].url;
+        const audioUrl = `https://verses.quran.com/${directory}`;
+        return audioUrl;
+    };
+
+    const playAudio = async () => {
+        const audioUrl = await fetchAudioUrl(current_posStr, RECITER); // Fetch the audio URL
+        updateAyah(current_posStr, audioUrl); // Update the context with the current ayah and URL
+    };
 
     const toggleBookmark = async () => {
         try {
@@ -137,41 +151,6 @@ const AyahContainer = ({ ayahData }) => {
             console.error("Error removing mistake:", error);
         }
     };
-
-    const playPauseAudio = async () => {
-        // Assuming there's a single audio element and a control button
-        const audioElement = document.querySelector("audio");
-        if (!audioElement) {
-            console.error("Audio element not found");
-            return;
-        }
-
-        // Example of using recitor and ayahId for fetching the audio URL
-        const recitor = 4;
-        const api = `https://api.quran.com/api/v4/recitations/${recitor}/by_ayah/${current_posStr}`;
-
-        try {
-            const response = await fetch(api);
-            if (!response.ok) {
-                throw new Error("Failed to fetch audio data");
-            }
-            const data = await response.json();
-            const audioUrl = `https://verses.quran.com/${data.audio_files[0].url}`;
-
-            if (audioElement.src !== audioUrl) {
-                audioElement.src = audioUrl;
-            }
-
-            if (audioElement.paused) {
-                await audioElement.play();
-            } else {
-                audioElement.pause();
-            }
-        } catch (error) {
-            console.error("Error playing audio:", error);
-        }
-    };
-
     const trackNumberInput = (event) => {
         const newValue = event.target.value;
         setLoop(newValue);
@@ -183,9 +162,9 @@ const AyahContainer = ({ ayahData }) => {
                 <button
                     className="ayah-control-button"
                     data-loop={loop}
-                    onClick={playPauseAudio}
+                    onClick={playAudio}
                 >
-                    Play/Pause
+                    {currentAyah === current_posStr && isPlaying ? 'Pause' : 'Play'}
                 </button>
                 <button
                     className="ayah-bookmark-button"

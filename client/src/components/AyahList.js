@@ -10,7 +10,7 @@ const AyahList = ({ start_pos, end_pos }) => {
 
     const fetchAyahData = async () => {
         try {
-            const response = await fetch("http://localhost:5000/hello");
+            const response = await fetch("http://localhost:501/hello");
             console.log("Response status:", response.status); // Log response status
             const data = await response.json();
             console.log("Fetched data:", data); // Log fetched data

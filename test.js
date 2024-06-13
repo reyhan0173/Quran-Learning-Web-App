@@ -7,7 +7,7 @@ const Bookmark = require("./bookmarkFormatting");
 ourApp.use(express.json());
 const AyahInfo = require("./AyahInfo"); // Import the AyahInfo model
 
-const portNumber = 5000;
+const portNumber = 501;
 
 const User = {
   studentId: 1111115,
@@ -51,7 +51,7 @@ async function fetchVerse(surahNumber, ayahNumber) {
 async function renderAyahContainer(
   current_posStr,
   verse,
-  recitor = 4,
+  reciter = 3,
   loop = 4
 ) {
   let [surahNumber, ayahNumber] = current_posStr.split(":").map(Number);
