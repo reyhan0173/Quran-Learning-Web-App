@@ -13,6 +13,13 @@ const AyahContainer = ({ ayahData }) => {
 
     const { currentAyah, isPlaying, setAyahUrl, setCurrentAyah, setIsPlaying } = useAudioPlayer(); // Destructure context values
 
+    useEffect(() => {
+        // Optionally, update component when ayahData changes
+        setMistakes(initialMistakes);
+        setIsBookmarked(initialIsBookmarked);
+        setLoop(initialLoop);
+    }, [ayahData]);
+
     // useEffect to fetch initial bookmark state
     useEffect(() => {
         const fetchBookmarkState = async () => {
@@ -96,19 +103,38 @@ const AyahContainer = ({ ayahData }) => {
             return;
         }
 
-        const ayahText = verse;
+        const ayahElement = document.querySelector(`[data-url='${current_posStr}'] .ayah`);
+        if (!ayahElement) {
+            alert("Error: Could not find the selected verse.");
+            return;
+        }
+
         const range = selection.getRangeAt(0);
         const startContainer = range.startContainer;
         const startOffset = range.startOffset;
 
-        let startIndex = -1;
-
-        if (startContainer.nodeType === Node.TEXT_NODE) {
-            startIndex = Array.from(ayahText.split("")).reduce((acc, char, index) => {
-                return acc + (index === startOffset ? startOffset : 0);
-            }, 0);
+        // Ensure the start container is a text node within the ayah
+        if (startContainer.nodeType !== Node.TEXT_NODE || !ayahElement.contains(startContainer)) {
+            alert("Error: Selected text is not within the correct verse.");
+            return;
         }
 
+        // Calculate the correct start index
+        let startIndex = 0;
+        let currentNode = startContainer;
+
+        // Traverse up the DOM to accumulate offsets
+        while (currentNode && currentNode !== ayahElement) {
+            if (currentNode.previousSibling) {
+                currentNode = currentNode.previousSibling;
+                startIndex += currentNode.textContent.length;
+            } else {
+                currentNode = currentNode.parentNode;
+            }
+        }
+        startIndex += startOffset;
+
+        const ayahText = verse;
         if (startIndex === -1 || ayahText.substring(startIndex, startIndex + selectedText.length) !== selectedText) {
             alert("Error: Selected text not found in the verse.");
             return;
@@ -120,7 +146,7 @@ const AyahContainer = ({ ayahData }) => {
         }
 
         try {
-            const response = await fetch("/addMistake", {
+            const response = await fetch("http://localhost:501/addMistake", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -136,6 +162,7 @@ const AyahContainer = ({ ayahData }) => {
         }
     };
 
+
     const removeMistake = async () => {
         const selection = window.getSelection();
         if (selection.rangeCount === 0) {
@@ -149,19 +176,38 @@ const AyahContainer = ({ ayahData }) => {
             return;
         }
 
-        const ayahText = verse;
+        const ayahElement = document.querySelector(`[data-url='${current_posStr}'] .ayah`);
+        if (!ayahElement) {
+            alert("Error: Could not find the selected verse.");
+            return;
+        }
+
         const range = selection.getRangeAt(0);
         const startContainer = range.startContainer;
         const startOffset = range.startOffset;
 
-        let startIndex = -1;
-
-        if (startContainer.nodeType === Node.TEXT_NODE) {
-            startIndex = Array.from(ayahText.split("")).reduce((acc, char, index) => {
-                return acc + (index === startOffset ? startOffset : 0);
-            }, 0);
+        // Ensure the start container is a text node within the ayah
+        if (startContainer.nodeType !== Node.TEXT_NODE || !ayahElement.contains(startContainer)) {
+            alert("Error: Selected text is not within the correct verse.");
+            return;
         }
 
+        // Calculate the correct start index
+        let startIndex = 0;
+        let currentNode = startContainer;
+
+        // Traverse up the DOM to accumulate offsets
+        while (currentNode && currentNode !== ayahElement) {
+            if (currentNode.previousSibling) {
+                currentNode = currentNode.previousSibling;
+                startIndex += currentNode.textContent.length;
+            } else {
+                currentNode = currentNode.parentNode;
+            }
+        }
+        startIndex += startOffset;
+
+        const ayahText = ayahElement.textContent; // Assuming the actual text without mistake spans
         if (startIndex === -1 || ayahText.substring(startIndex, startIndex + selectedText.length) !== selectedText) {
             alert("Error: Selected text not found in the verse.");
             return;
@@ -173,7 +219,7 @@ const AyahContainer = ({ ayahData }) => {
         }
 
         try {
-            const response = await fetch("/removeMistake", {
+            const response = await fetch("http://localhost:501/removeMistake", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -183,7 +229,9 @@ const AyahContainer = ({ ayahData }) => {
             if (!response.ok) {
                 throw new Error("Failed to remove mistake");
             }
-            setMistakes(mistakes.filter(index => !mistakeIndexes.includes(index)));
+
+            setMistakes(prevMistakes => prevMistakes.filter(index => !mistakeIndexes.includes(index)));
+            alert("Mistake removed successfully");
         } catch (error) {
             console.error("Error removing mistake:", error);
         }
