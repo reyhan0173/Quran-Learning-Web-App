@@ -1,27 +1,26 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 const AudioPlayerContext = createContext();
 
+export const useAudioPlayer = () => useContext(AudioPlayerContext);
+
 export const AudioPlayerProvider = ({ children }) => {
-    const [currentAyah, setCurrentAyah] = useState(null);
     const [ayahUrl, setAyahUrl] = useState('');
     const [isPlaying, setIsPlaying] = useState(false);
-
-    const updateAyah = (ayah, url) => {
-        if (ayah === currentAyah && isPlaying) {
-            setIsPlaying(false);
-        } else {
-            setCurrentAyah(ayah);
-            setAyahUrl(url);
-            setIsPlaying(true);
-        }
-    };
+    const [currentAyah, setCurrentAyah] = useState(null);
 
     return (
-        <AudioPlayerContext.Provider value={{ currentAyah, ayahUrl, isPlaying, updateAyah, setIsPlaying }}>
+        <AudioPlayerContext.Provider
+            value={{
+                ayahUrl,
+                setAyahUrl,
+                isPlaying,
+                setIsPlaying,
+                currentAyah,
+                setCurrentAyah,
+            }}
+        >
             {children}
         </AudioPlayerContext.Provider>
     );
 };
-
-export const useAudioPlayer = () => useContext(AudioPlayerContext);

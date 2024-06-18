@@ -14,7 +14,7 @@ function App() {
             <div className="App">
                 <Header />
                 <main>
-                    <AyahList start_pos="1:1" end_pos="2:5" />
+                    <AyahList start_pos="5:8" end_pos="5:10" />
                     <AudioRecorder />
                     <AudioPlayer />
                 </main>

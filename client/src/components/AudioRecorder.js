@@ -12,6 +12,8 @@ const AudioRecorder = () => {
     const startRecording = () => {
         // Clear the audio playback URL
         audioPlaybackRef.current.src = null;
+        const playBtn = document.getElementById("recordPlayBtn");
+        playBtn.innerHTML = '<i class="fa fa-play"></i>'; // Change icon to pause when playing
 
         // Reset audio chunks and clear previous recordings
         audioChunksRef.current = [];
@@ -74,6 +76,10 @@ const AudioRecorder = () => {
 
             // Clear the audio blob and URL
             setAudioUrl(null);
+
+            // Reset play button icon to play
+            const playBtn = document.getElementById("recordPlayBtn");
+            playBtn.innerHTML = '<i class="fa fa-play"></i>';
         }
     };
 
@@ -96,7 +102,7 @@ const AudioRecorder = () => {
                 id="recordPlayBtn"
                 className="recordPlayBtn icon-Btn"
                 onClick={playRecording}
-                disabled={isPlayDisabled}
+                disabled={isPlayDisabled || !audioUrl} // Disable if no audioUrl or playback is disabled
             >
                 <i className="fa fa-play recordPlayBtn-icon"></i>
             </button>
@@ -114,6 +120,7 @@ const AudioRecorder = () => {
                 id="recordTrashBtn"
                 className="recordTrashBtn icon-Btn"
                 onClick={submitRecording}
+                disabled={!audioUrl || isSubmitDisabled}
             >
                 <i className="fa fa-trash recordTrashBtn-icon"></i>
             </button>
