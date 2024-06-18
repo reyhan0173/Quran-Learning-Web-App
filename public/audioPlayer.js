@@ -245,7 +245,7 @@ async function addMistake(current_posStr) {
     return;
   }
 
-  const selectedText = selection.toString();
+  const selectedText = selection.toString().trim();
   if (!selectedText) {
     alert("Please select text to mark as a mistake.");
     return;
@@ -259,9 +259,12 @@ async function addMistake(current_posStr) {
     alert("Error: Could not find the selected verse.");
     return;
   }
-  
 
-  const ayahText = ayahElement.textContent;
+  const ayahText = Array.from(ayahElement.childNodes)
+      .map(node => node.textContent)
+      .join('')
+      .trim();
+
   const range = selection.getRangeAt(0);
 
   // Check if the selection is within the ayah element
@@ -270,31 +273,44 @@ async function addMistake(current_posStr) {
     return;
   }
 
-  const startContainer = range.startContainer;
-  const startOffset = range.startOffset;
+  let startContainer = range.startContainer;
+  let startOffset = range.startOffset;
 
-  console.log(`Start Container Text: "${startContainer.textContent}", Start Offset: ${startOffset}`);
-  
-  let startIndex = -1;
+  console.log(`Start Container Text: "${startContainer.textContent.trim()}", Start Offset: ${startOffset}`);
 
   // Calculate the start index based on the character offset within the ayah text
-  if (startContainer.nodeType === Node.TEXT_NODE) {
-    startIndex = Array.from(ayahElement.childNodes).reduce((acc, node) => {
-      if (node === startContainer) {
-        return acc + startOffset;
-      } else {
-        return acc + (node.textContent.length || 0);
-      }
-    }, 0);
+  let startIndex = 0;
+  let currentNode = ayahElement.firstChild;
+  let found = false;
+
+  while (currentNode && !found) {
+    if (currentNode === startContainer) {
+      startIndex += startOffset;
+      found = true;
+    } else {
+      startIndex += currentNode.textContent.length;
+    }
+    currentNode = currentNode.nextSibling;
   }
 
-  if (startIndex === -1 || ayahText.substring(startIndex, startIndex + selectedText.length) !== selectedText) {
+  if (!found) {
+    alert("Error: Could not calculate start index.");
+    return;
+  }
+
+  const normalizedSelectedText = selectedText.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const normalizedAyahText = ayahText.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+  if (startIndex === -1 || normalizedAyahText.substring(startIndex, startIndex + normalizedSelectedText.length) !== normalizedSelectedText) {
     alert("Error: Selected text not found in the verse.");
+    console.log(`Verse Text: "${ayahText}"`);
+    console.log(`Computed Start Index: ${startIndex}`);
+    console.log(`Computed Substring: "${normalizedAyahText.substring(startIndex, startIndex + normalizedSelectedText.length)}"`);
     return;
   }
 
   const mistakeIndexes = [];
-  for (let i = startIndex; i < startIndex + selectedText.length; i++) {
+  for (let i = startIndex; i < startIndex + normalizedSelectedText.length; i++) {
     mistakeIndexes.push(i);
   }
 
@@ -311,11 +327,15 @@ async function addMistake(current_posStr) {
       throw new Error("Failed to add mistake");
     }
     alert("Mistake marked successfully");
+    location.reload();
   } catch (error) {
     console.error("Error adding mistake:", error);
     alert("Error adding mistake");
   }
 }
+
+
+
 
 async function removeMistake(current_posStr) {
   const selection = window.getSelection();
@@ -324,7 +344,7 @@ async function removeMistake(current_posStr) {
     return;
   }
 
-  const selectedText = selection.toString();
+  const selectedText = selection.toString().trim();
   if (!selectedText) {
     alert("Please select text to remove as a mistake.");
     return;
@@ -339,13 +359,11 @@ async function removeMistake(current_posStr) {
     return;
   }
 
-  const ayahText = ayahElement.textContent; // Original verse text without spans
-  const displayedText = ayahElement.innerText; // Text displayed in the verse (includes spans)
+  const ayahText = Array.from(ayahElement.childNodes)
+      .map(node => node.textContent)
+      .join('')
+      .trim();
 
-  // Debug: Log the full verse text
-  console.log(`Full Verse Text: "${ayahText}"`);
-  console.log(`text no tags: "${displayedText}"`);
-  
   const range = selection.getRangeAt(0);
 
   // Check if the selection is within the ayah element
@@ -354,34 +372,59 @@ async function removeMistake(current_posStr) {
     return;
   }
 
-  const startContainer = range.startContainer;
-  const startOffset = range.startOffset;
-  let startIndex = -1;
+  let startContainer = range.startContainer;
+  let startOffset = range.startOffset;
+
+  console.log(`Start Container Text: "${startContainer.textContent.trim()}", Start Offset: ${startOffset}`);
 
   // Calculate the start index based on the character offset within the ayah text
-  if (startContainer.nodeType === Node.TEXT_NODE) {
-    startIndex = Array.from(ayahElement.childNodes).reduce((acc, node) => {
-      if (node === startContainer) {
-        return acc + startOffset;
+  let startIndex = 0;
+  let currentNode = ayahElement.firstChild;
+  let found = false;
+
+  while (currentNode && !found) {
+    if (currentNode.nodeType === Node.TEXT_NODE) {
+      if (currentNode === startContainer) {
+        startIndex += startOffset;
+        found = true;
       } else {
-        // If the node is a text node, use its text content; otherwise, skip it
-        const nodeText = node.nodeType === Node.TEXT_NODE ? node.textContent : '';
-        return acc + nodeText.length;
+        startIndex += currentNode.textContent.length;
       }
-    }, 0);
+    } else if (currentNode.nodeType === Node.ELEMENT_NODE && currentNode.classList.contains('mistake')) {
+      if (currentNode.contains(startContainer)) {
+        const tempRange = document.createRange();
+        tempRange.selectNodeContents(currentNode);
+        if (tempRange.compareBoundaryPoints(Range.START_TO_END, range) === 1) {
+          startIndex += startOffset;
+          found = true;
+        } else {
+          startIndex += currentNode.textContent.length;
+        }
+      } else {
+        startIndex += currentNode.textContent.length;
+      }
+    }
+    currentNode = currentNode.nextSibling;
   }
 
-  // Check if the selected text matches the displayed text in the verse
-  if (
-      startIndex === -1 ||
-      displayedText.substring(startIndex, startIndex + selectedText.length) !== selectedText
-  ) {
+  if (!found) {
+    alert("Error: Could not calculate start index.");
+    return;
+  }
+
+  const normalizedSelectedText = selectedText.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const normalizedAyahText = ayahText.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+  if (startIndex === -1 || normalizedAyahText.substring(startIndex, startIndex + normalizedSelectedText.length) !== normalizedSelectedText) {
     alert("Error: Selected text not found in the verse.");
+    console.log(`Verse Text: "${ayahText}"`);
+    console.log(`Computed Start Index: ${startIndex}`);
+    console.log(`Computed Substring: "${normalizedAyahText.substring(startIndex, startIndex + normalizedSelectedText.length)}"`);
     return;
   }
 
   const mistakeIndexes = [];
-  for (let i = startIndex; i < startIndex + selectedText.length; i++) {
+  for (let i = startIndex; i < startIndex + normalizedSelectedText.length; i++) {
     mistakeIndexes.push(i);
   }
 
@@ -398,11 +441,14 @@ async function removeMistake(current_posStr) {
       throw new Error("Failed to remove mistake");
     }
     alert("Mistake removed successfully");
+    location.reload();
   } catch (error) {
     console.error("Error removing mistake:", error);
     alert("Error removing mistake");
   }
 }
+
+
 
 
 
