@@ -13,3 +13,4 @@ npm install connect-flash
 npm install node-fetch
 npm install util
 npm install sqlite3
+npm install font-awesome

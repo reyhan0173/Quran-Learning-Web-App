@@ -67,14 +67,14 @@ async function isBookmarked(studentId, courseId, surahNumber, ayahNumber) {
             where: {
                 studentId: studentId,
                 courseId: courseId,
-                surahNumber, surahNumber,
+                surahNumber: surahNumber,
                 ayahNumber: ayahNumber
             },
             attributes: [
                 "isBookmarked"
             ]
         });
-
+        console.log(`result===${surahNumber}:${ayahNumber}:${JSON.stringify(result)}`);
         // returns 1 if bookmarked or 0 otherwise
         return result && result.isBookmarked ? 1 : 0;
     } catch (err) {
