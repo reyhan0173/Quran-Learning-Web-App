@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useAudioPlayer } from './AudioPlayerContext'; // Import the context
 
 const AudioPlayer = () => {
-    const { ayahUrl, isPlaying, setIsPlaying, currentAyah } = useAudioPlayer();
+    const { ayahUrl, isPlaying, setIsPlaying, currentAyah, loopCount, playCount, setPlayCount } = useAudioPlayer();
     const audioRef = useRef(null);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -20,7 +20,13 @@ const AudioPlayer = () => {
             };
 
             const handleEnded = () => {
-                setIsPlaying(false);
+                if (playCount < loopCount - 1) {
+                    setPlayCount((prevCount) => prevCount + 1);
+                    audioElement.play();
+                } else {
+                    setIsPlaying(false);
+                    setPlayCount(0); // Reset play count when done looping
+                }
             };
 
             audioElement.addEventListener('loadedmetadata', handleLoadedMetadata);
@@ -33,7 +39,7 @@ const AudioPlayer = () => {
                 audioElement.removeEventListener('ended', handleEnded);
             };
         }
-    }, [ayahUrl, isPlaying, setIsPlaying]);
+    }, [ayahUrl, isPlaying, setIsPlaying, playCount, loopCount]);
 
     useEffect(() => {
         const audioElement = audioRef.current;
