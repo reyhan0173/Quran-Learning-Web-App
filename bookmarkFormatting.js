@@ -74,7 +74,7 @@ async function isBookmarked(studentId, courseId, surahNumber, ayahNumber) {
                 "isBookmarked"
             ]
         });
-        console.log(`result===${surahNumber}:${ayahNumber}:${JSON.stringify(result)}`);
+        console.log(`result===${surahNumber}:${ayahNumber}:${result && result.isBookmarked ? 1 : 0}`);
         // returns 1 if bookmarked or 0 otherwise
         return result && result.isBookmarked ? 1 : 0;
     } catch (err) {

@@ -10,10 +10,22 @@ const AyahList = ({ start_pos, end_pos }) => {
         const fetchAyahData = async () => {
             setLoading(true);
             try {
-                const response = await fetch("http://localhost:501/hello");
+                const response = await fetch("http://localhost:501/fetchAyahs", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ start_pos, end_pos })
+                });
                 console.log("Response status:", response.status); // Log response status
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
                 const data = await response.json();
                 console.log("Fetched data:", data); // Log fetched data
+
                 setAyahs(data);
                 setLoading(false);
                 setError(null);

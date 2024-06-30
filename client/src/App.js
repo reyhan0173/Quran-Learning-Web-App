@@ -10,16 +10,16 @@ import './main.css';
 
 function App() {
     return (
-        <AudioPlayerProvider>
-            <div className="App">
-                <Header />
-                <main>
-                    <AyahList start_pos="5:8" end_pos="5:10" />
-                    <AudioRecorder />
-                    <AudioPlayer />
-                </main>
-            </div>
-        </AudioPlayerProvider>
+      <AudioPlayerProvider>
+          <div className="App">
+              <Header/>
+              <main>
+                  <AyahList start_pos="5:8" end_pos="5:31"/>
+                  <AudioRecorder/>
+                  <AudioPlayer/>
+              </main>
+          </div>
+      </AudioPlayerProvider>
     );
 }
 

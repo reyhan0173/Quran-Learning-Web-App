@@ -14,7 +14,7 @@ async function hasMistake(surah_ayah){
                 "mistakes"
             ],
         });
-        return result ? result.mistakes : null;
+        return result ? result.mistakes : [];
     } catch (err) {
         console.error(err)
     }

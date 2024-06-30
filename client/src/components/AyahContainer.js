@@ -5,8 +5,8 @@ const RECITER = 3;
 
 const AyahContainer = ({ ayahData }) => {
     const { current_posStr, verse, mistakes: initialMistakes, isBookmarked: initialIsBookmarked } = ayahData;
-    const [mistakes, setMistakes] = useState(initialMistakes);
-    const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked);
+    const [mistakes, setMistakes] = useState(initialMistakes || []);
+    const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked || 0);
     const [loop, setLoop] = useState(10); // Set initial loop value to 10
 
     const {
@@ -41,6 +41,8 @@ const AyahContainer = ({ ayahData }) => {
                     throw new Error("Failed to fetch bookmark state");
                 }
                 const { isBookmarked } = await response.json();
+                console.log(`________DEBUG 11________\n isBookmarked:${isBookmarked}`);
+
                 setIsBookmarked(isBookmarked);
             } catch (error) {
                 console.error("Error fetching initial bookmark state:", error);
