@@ -1,5 +1,6 @@
 body {
     margin: 0;
+    padding: 0;
     background-color: white;
 }
 
@@ -10,10 +11,8 @@ header {
 }
 
 main {
-    width: 98%;
-    margin-top: 20px;
-    margin-left: 1%;
-    margin-right: 1%;
+    padding-top: 45px;
+    width: 100%;
 }
 
 .ayah-container {
@@ -199,6 +198,7 @@ audio {
   
 .ayah-list {
     width: 100%;
+    margin-top: 10px;
     /*max-height: 100px; !* Adjust this value as needed *!*/
     overflow-y: auto;
     border: 1px solid #ddd;
@@ -226,4 +226,59 @@ audio {
 
 .record-section {
     margin: 14.095px 0;
+}
+
+/** {*/
+/*    margin: 0;*/
+/*    padding: 0;*/
+/*}*/
+
+
+header {
+    height: 45px;
+    width: 100%;
+    background-color: lightsteelblue;
+    display: flex;
+    flex-direction: row;
+    position: fixed;
+    z-index: 10;
+}
+
+.logo-section {
+    padding: 0 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex: 1;
+}
+
+.personal-section {
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 1;
+}
+
+.profile-photo {
+    height: 30px;
+    width: 30px;
+    border-radius: 50%;
+}
+
+.chat-icon {
+    font-size: 20px;
+
+    color: white;
+    margin-right: 15px;
+}
+
+.bell-icon {
+    font-size: 20px;
+    color: black;
+    margin-right: 10px;
+}
+
+.logo-name {
+    margin-left: 10px;
 }
