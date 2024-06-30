@@ -54,6 +54,8 @@ async function getAyahData(start_pos, end_pos) {
   start_pos = start_pos.split(":").map(Number);
   end_pos = end_pos.split(":").map(Number);
 
+  console.log(`___________DEBUG 9_________\n |${start_pos[0]}:${start_pos[1]}| ||| |${end_pos}`);
+
   let current_pos = [...start_pos]; // Create a copy to avoid modifying start_pos directly
   let promises = [];
 
@@ -108,21 +110,40 @@ async function getAyahData(start_pos, end_pos) {
   return ayahsData;
 }
 
-ourApp.get("/hello", async (req, res) => {
+ourApp.post("/fetchAyahs", async (req, res) => {
   try {
-    console.log("GET /hello called"); // Log when the route is called
+    console.log("POST /fetchAyahs called"); // Correct log statement for POST request
 
-    const START_POSITION = "5:8";
-    const END_POSITION = "5:10";
-    const ayahData = await getAyahData(START_POSITION, END_POSITION);
+    const { start_pos, end_pos } = req.body;
 
-    console.log("Ayah data fetched successfully");
+    // Check if start_pos and end_pos are defined
+    if (start_pos === undefined || end_pos === undefined) {
+      console.error("Error: start_pos or end_pos is not defined");
+      return res.status(400).json({ error: "start_pos and end_pos are required" });
+    }
+
+    console.log(`Received start_pos: ${start_pos}, end_pos: ${end_pos}`);
+
+    const ayahData = await getAyahData(start_pos, end_pos);
+
+    console.log("Ayah data fetched successfully", ayahData);
 
     res.json(ayahData); // Respond with JSON data
-
   } catch (err) {
     console.error("Error: ", err);
     res.status(500).json({ error: "Internal Server Error" }); // Respond with JSON error message
+  }
+});
+
+ourApp.post("/checkBookmark", async (req, res) => {
+  try {
+    const [surahId, ayahId] = req.body.current_posStr.split(":").map(Number);
+    const isBookmarked = await Bookmark.isBookmarked(User.studentId, User.courseId, surahId, ayahId);
+    console.log(`________DEBUG 10________\n isBookmarked: ${isBookmarked}`);
+    res.status(200).send({ isBookmarked });
+  } catch (error) {
+    console.error("Error checking bookmark state:", error);
+    res.status(500).send({ error: "Failed to check bookmark state" });
   }
 });
 
