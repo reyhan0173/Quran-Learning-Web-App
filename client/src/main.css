@@ -13,6 +13,7 @@ header {
 main {
     padding-top: 45px;
     width: 100%;
+    display: flex;
 }
 
 .ayah-container {
@@ -199,7 +200,8 @@ audio {
 .ayah-list {
     width: 100%;
     margin-top: 10px;
-    /*max-height: 100px; !* Adjust this value as needed *!*/
+    max-height: 500px; /* Adjust this value as needed */
+
     overflow-y: auto;
     border: 1px solid #ddd;
     background-color: #f9f9f9;
