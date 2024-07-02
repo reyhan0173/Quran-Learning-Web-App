@@ -1,12 +1,14 @@
 
 const AyahFormatting = require('./ayahFormattingTable');
 
-async function hasMistake(surah_ayah){
+async function hasMistake(studentId, courseId, surah_ayah){
     let [surah, verse] = surah_ayah.split(":").map(Number);
     
     try {
         const result = await AyahFormatting.findOne({
             where: {
+                studentId: studentId,
+                courseId: courseId,
                 surahNumber: surah,
                 ayahNumber: verse
             },
@@ -20,10 +22,12 @@ async function hasMistake(surah_ayah){
     }
 }
 
-async function addMistake(surahNumber, ayahNumber, newMistakes){
+async function addMistake(studentId, courseId, surahNumber, ayahNumber, newMistakes){
     try{
         const result = await AyahFormatting.findOne({
             where: {
+                studentId: studentId,
+                courseId: courseId,
                 surahNumber: surahNumber,
                 ayahNumber: ayahNumber
             }
@@ -32,9 +36,8 @@ async function addMistake(surahNumber, ayahNumber, newMistakes){
         if (result) {
             // Merge existing mistakes with new mistakes
             let existingMistakes = result.mistakes || [];
-            let combinedMistakes = [...new Set([...existingMistakes, ...newMistakes])];
 
-            result.mistakes = combinedMistakes;
+            result.mistakes =  [...new Set([...existingMistakes, ...newMistakes])];;
             await result.save();
             console.log(`Successfully added mistakes for ${surahNumber}:${ayahNumber}`);
         } else {
@@ -51,10 +54,12 @@ async function addMistake(surahNumber, ayahNumber, newMistakes){
 }
 
 
-async function removeMistake(surahNumber, ayahNumber, indexesToRemove) {
+async function removeMistake(studentId, courseId, surahNumber, ayahNumber, indexesToRemove) {
     try {
         const result = await AyahFormatting.findOne({
             where: {
+                studentId: studentId,
+                courseId: courseId,
                 surahNumber: surahNumber,
                 ayahNumber: ayahNumber
             }
@@ -65,7 +70,7 @@ async function removeMistake(surahNumber, ayahNumber, indexesToRemove) {
             // Filter out the indexes to remove
             let updatedMistakes = existingMistakes.filter(index => !indexesToRemove.includes(index));
 
-            result.mistakes = updatedMistakes;
+            result.mistakes = updatedMistakes || [];
             await result.save();
             console.log(`Successfully removed mistakes for ${surahNumber}:${ayahNumber}`);
         } else {

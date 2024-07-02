@@ -1,24 +1,53 @@
+.App {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar {
+    height: 100%;
+}
+
+.App-body {
+    margin-top: 45px;
+    display: flex;
+    height: calc(100% - 45px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .App-logo {
+        animation: App-logo-spin infinite 20s linear;
+    }
+}
+
+@keyframes App-logo-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 body {
     margin: 0;
     padding: 0;
     background-color: white;
-}
-
-header {
     width: 100%;
-    height: 60px;
-    background-color: white;
+    height: 100%;
 }
 
 main {
-    padding-top: 45px;
     width: 100%;
+    height: 100%;
     display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .ayah-container {
     background-color: rgb(209, 209, 209);
-    height: 120px;
+    /*height: 120px;*/
     display: flex;
     gap: 20px;
 }
@@ -198,14 +227,11 @@ audio {
 }
   
 .ayah-list {
-    width: 100%;
-    margin-top: 10px;
-    max-height: 500px; /* Adjust this value as needed */
-    overflow-y: auto;
+    margin: 10px;
     border: 1px solid #ddd;
     background-color: #f9f9f9;
     position: relative;
-    z-index: 1;
+    overflow-y: auto;
 }
 
 .ayah-summary {
@@ -229,13 +255,8 @@ audio {
     margin: 14.095px 0;
 }
 
-/** {*/
-/*    margin: 0;*/
-/*    padding: 0;*/
-/*}*/
-
-
 header {
+    top: 0;
     height: 45px;
     width: 100%;
     background-color: lightsteelblue;
