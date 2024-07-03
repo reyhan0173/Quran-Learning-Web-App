@@ -4,7 +4,7 @@ import { useAudioPlayer } from './AudioPlayerContext'; // Import the context
 const RECITER = 3;
 
 const AyahContainer = ({ ayahData }) => {
-    const { current_posStr, verse, mistakes: initialMistakes, isBookmarked: initialIsBookmarked } = ayahData;
+    const { studentId, courseId, current_posStr, verse, mistakes: initialMistakes, isBookmarked: initialIsBookmarked } = ayahData;
     const [mistakes, setMistakes] = useState(initialMistakes || []);
     const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked || 0);
     const [loop, setLoop] = useState(10); // Set initial loop value to 10
@@ -162,7 +162,7 @@ const AyahContainer = ({ ayahData }) => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ current_posStr, mistakeIndexes }),
+                body: JSON.stringify({ studentId, courseId, current_posStr, mistakeIndexes }),
             });
             if (!response.ok) {
                 throw new Error("Failed to add mistake");
@@ -232,7 +232,7 @@ const AyahContainer = ({ ayahData }) => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ current_posStr, mistakeIndexes }),
+                body: JSON.stringify({ studentId, courseId, current_posStr, mistakeIndexes }),
             });
             if (!response.ok) {
                 throw new Error("Failed to remove mistake");
