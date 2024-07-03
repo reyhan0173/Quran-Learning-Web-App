@@ -37,7 +37,7 @@ function App() {
           </Sidebar>
 
           <main>
-            <AyahList studentId={1111115} courseId={123} startPos={"5:8"} endPos={"5:31"} />
+            <AyahList studentId={1111120} courseId={123} startPos={"10:8"} endPos={"10:15"} />
             <AudioRecorder />
             <AudioPlayer />
           </main>
