@@ -1,6 +1,6 @@
 {
   "name": "quran",
-  "main": "test.js",
+  "main": "server.js",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "connect-flash": "^0.1.1",
@@ -20,6 +20,6 @@
     "validator": "^13.12.0"
   },
   "scripts": {
-    "watch": "nodemon test"
+    "watch": "nodemon server"
   }
 }

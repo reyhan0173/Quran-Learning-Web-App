@@ -7,13 +7,12 @@ const Bookmark = require("./bookmarkFormatting");
 ourApp.use(express.json());
 const AyahInfo = require("./AyahInfo"); // Import the AyahInfo model
 
-const portNumber = 501;
+const PORT_NUMBER = 501;
 
-const User = {
-  studentId: 1111115,
-  courseId: 123,
-};
-
+let User = {
+  studentId: null,
+  courseId: null
+}
 // Serve static files from the 'public' directory
 ourApp.use(express.urlencoded({ extended: false }));
 ourApp.use(express.static("public"));
@@ -50,16 +49,16 @@ async function fetchVerse(surahNumber, ayahNumber) {
 
 
 
-async function getAyahData(start_pos, end_pos) {
-  start_pos = start_pos.split(":").map(Number);
-  end_pos = end_pos.split(":").map(Number);
+async function getAyahData(studentId, courseId, startPos, endPos) {
+  startPos = startPos.split(":").map(Number);
+  endPos = endPos.split(":").map(Number);
 
-  console.log(`___________DEBUG 9_________\n |${start_pos[0]}:${start_pos[1]}| ||| |${end_pos}`);
+  console.log(`___________DEBUG 9_________\n |${startPos[0]}:${startPos[1]}| ||| |${endPos}`);
 
-  let current_pos = [...start_pos]; // Create a copy to avoid modifying start_pos directly
+  let current_pos = [...startPos]; // Create a copy to avoid modifying startPos directly
   let promises = [];
 
-  while (current_pos[0] !== end_pos[0] || current_pos[1] !== end_pos[1] + 1) {
+  while (current_pos[0] !== endPos[0] || current_pos[1] !== endPos[1] + 1) {
     console.log(`i=====${JSON.stringify(current_pos)}`);
     if (current_pos[1] > (await getAyahCount(current_pos[0]))) {
       current_pos[0] += 1;
@@ -72,16 +71,13 @@ async function getAyahData(start_pos, end_pos) {
         try {
           console.log(`i1=====${JSON.stringify(pos)}`);
           const verse = await fetchVerse(pos[0], pos[1]);
-          const mistakes = await Mistakes.hasMistake(current_posStr);
+          const mistakes = await Mistakes.hasMistake(studentId, courseId, current_posStr);
 
           console.log("__________DEBUG 8_____________")
           console.log(`${User.studentId}, ${User.courseId}, ${pos[0]}, ${pos[1]}`)
 
           const isBookmarked = await Bookmark.isBookmarked(
-              User.studentId,
-              User.courseId,
-              pos[0],
-              pos[1]
+            studentId, courseId, pos[0], pos[1]
           );
 
           console.log(`isBookmarked?>: ${isBookmarked}`);
@@ -106,32 +102,24 @@ async function getAyahData(start_pos, end_pos) {
     }
   }
 
-  const ayahsData = await Promise.all(promises);
-  return ayahsData;
+  return await Promise.all(promises);
 }
 
 ourApp.post("/fetchAyahs", async (req, res) => {
   try {
-    console.log("POST /fetchAyahs called"); // Correct log statement for POST request
+    const { studentId, courseId, startPos, endPos } = req.body;
+    User.studentId = studentId;
+    User.courseId = courseId;
 
-    const { start_pos, end_pos } = req.body;
-
-    // Check if start_pos and end_pos are defined
-    if (start_pos === undefined || end_pos === undefined) {
-      console.error("Error: start_pos or end_pos is not defined");
-      return res.status(400).json({ error: "start_pos and end_pos are required" });
+    if (!startPos || !endPos) {
+      return res.status(400).json({ error: "startPos and endPos are required" });
     }
 
-    console.log(`Received start_pos: ${start_pos}, end_pos: ${end_pos}`);
-
-    const ayahData = await getAyahData(start_pos, end_pos);
-
-    console.log("Ayah data fetched successfully", ayahData);
-
-    res.json(ayahData); // Respond with JSON data
+    const ayahData = await getAyahData(studentId, courseId, startPos, endPos);
+    res.json(ayahData);
   } catch (err) {
-    console.error("Error: ", err);
-    res.status(500).json({ error: "Internal Server Error" }); // Respond with JSON error message
+    console.error("Error fetching ayahs:", err);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
@@ -204,11 +192,11 @@ ourApp.post("/removeBookmark", async (req, res) => {
 
 ourApp.post("/addMistake", async (req, res) => {
   try {
-    const { current_posStr, mistakeIndexes } = req.body;
+    const { studentId, courseId, current_posStr, mistakeIndexes } = req.body;
     let [surahNumber, ayahNumber] = current_posStr.split(":").map(Number);
 
     // Implement the logic to handle adding mistakes (e.g., save to database)
-    await Mistakes.addMistake(surahNumber, ayahNumber, mistakeIndexes);
+    await Mistakes.addMistake(studentId, courseId, surahNumber, ayahNumber, mistakeIndexes);
     res.status(200).send("Mistake added successfully");
   } catch (error) {
     console.error("Error adding mistake:", error);
@@ -217,11 +205,11 @@ ourApp.post("/addMistake", async (req, res) => {
 });
 ourApp.post("/removeMistake", async (req, res) => {
   try {
-    const { current_posStr, mistakeIndexes } = req.body;
+    const { studentId, courseId, current_posStr, mistakeIndexes } = req.body;
     let [surahNumber, ayahNumber] = current_posStr.split(":").map(Number);
 
     // Implement the logic to handle removing mistakes (e.g., update database)
-    await Mistakes.removeMistake(surahNumber, ayahNumber, mistakeIndexes);
+    await Mistakes.removeMistake(studentId, courseId, surahNumber, ayahNumber, mistakeIndexes);
     res.status(200).send("Mistake removed successfully");
   } catch (error) {
     console.error("Error removing mistake:", error);
@@ -229,6 +217,6 @@ ourApp.post("/removeMistake", async (req, res) => {
   }
 });
 
-ourApp.listen(portNumber, () => {
-  console.log(`Server running on http://localhost:${portNumber}`);
+ourApp.listen(PORT_NUMBER, () => {
+  console.log(`Server running on http://localhost:${PORT_NUMBER}`);
 });

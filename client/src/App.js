@@ -5,8 +5,6 @@ import AudioRecorder from './components/AudioRecorder';
 import AudioPlayer from './components/AudioPlayer';
 import { AudioPlayerProvider } from './components/AudioPlayerContext';
 import 'font-awesome/css/font-awesome.min.css';
-import './App.css';
-import './main.css';
 import Sidebar from "./components/Sidebar";
 import { SidebarItem } from "./components/Sidebar";
 import {
@@ -38,8 +36,8 @@ function App() {
             <SidebarItem icon={<BarChart2 size={20} />} text="Analytics" active />
           </Sidebar>
 
-          <main className="App-main">
-            <AyahList start_pos="5:8" end_pos="5:31" />
+          <main>
+            <AyahList studentId={1111120} courseId={123} startPos={"10:8"} endPos={"10:15"} />
             <AudioRecorder />
             <AudioPlayer />
           </main>

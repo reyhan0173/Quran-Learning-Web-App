@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AyahContainer from "./AyahContainer";
 
-const AyahList = ({ start_pos, end_pos }) => {
+const AyahList = ({ studentId, courseId, startPos, endPos }) => {
     const [ayahs, setAyahs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -15,7 +15,7 @@ const AyahList = ({ start_pos, end_pos }) => {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ start_pos, end_pos })
+                    body: JSON.stringify({ studentId, courseId, startPos, endPos })
                 });
                 console.log("Response status:", response.status); // Log response status
 
@@ -42,7 +42,7 @@ const AyahList = ({ start_pos, end_pos }) => {
         return () => {
             // Cleanup code if needed
         };
-    }, [start_pos, end_pos]); // Only run effect if start_pos or end_pos change
+    }, [startPos, endPos]); // Only run effect if startPos or endPos change
 
     console.log(`ayahs=${JSON.stringify(ayahs)}`);
 
@@ -54,6 +54,8 @@ const AyahList = ({ start_pos, end_pos }) => {
         <div className="ayah-list">
             {ayahs.map((ayah) => (
                 <AyahContainer
+                    studentId={studentId}
+                    courseId={courseId}
                     key={ayah.current_posStr} // Assuming current_posStr is unique and stable
                     ayahData={ayah}
                     updateAyah={(updatedAyah) => {
