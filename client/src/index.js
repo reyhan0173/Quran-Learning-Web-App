@@ -27,11 +27,11 @@ function Main() {
 
   useEffect(() => {
     if (isLoggedIn) {
-      unloadCSS('Login.css'); // Replace with the correct path to your Login CSS
-      loadCSS('main.css'); // Replace with the correct path to your App CSS
+      unloadCSS('Login.css');
+      loadCSS('main.css');
     } else {
-      unloadCSS('App.css'); // Replace with the correct path to your App CSS
-      loadCSS('Login.css'); // Replace with the correct path to your Login CSS
+      unloadCSS('App.css');
+      loadCSS('Login.css');
     }
     // Cleanup function to remove dynamic CSS on component unmount
     return () => {
@@ -45,11 +45,30 @@ function Main() {
   };
 
   return (
-    <React.StrictMode>
-      {isLoggedIn ? <App /> : <Login onLogin={handleLogin} />}
-    </React.StrictMode>
+      <React.StrictMode>
+        {isLoggedIn ? <App /> : <Login onLogin={handleLogin} />}
+      </React.StrictMode>
   );
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<Main />);
+
+// import React, { useState, useEffect } from 'react';
+// import ReactDOM from 'react-dom/client';
+// import './index.css';
+// import App from './App';
+// import Login from './components/Login';
+// import './main.css'
+// // import './approveHomework.css'
+//
+// function Main() {
+//   return (
+//     <React.StrictMode>
+//       <App />
+//     </React.StrictMode>
+//   );
+// }
+//
+// const root = ReactDOM.createRoot(document.getElementById('root'));
+// root.render(<Main />);
