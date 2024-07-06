@@ -23,7 +23,8 @@ async function addBookmark(studentId, courseId, surahNumber, ayahNumber) {
                 courseId: courseId,
                 surahNumber: surahNumber,
                 ayahNumber: ayahNumber,
-                isBookmarked: 1
+                isBookmarked: 1,
+                mistakes: []
             });
             console.log(`Successfully added the bookmark at ${surahNumber}:${ayahNumber}`);
             return 1;  // successfully created and added

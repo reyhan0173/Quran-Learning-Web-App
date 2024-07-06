@@ -45,10 +45,11 @@ main {
     background-color: rgb(209, 209, 209);
     display: flex;
     gap: 20px;
+    padding: 10px 0;
 }
 
 .ayah-controls {
-    width: 100px;
+    width: 50px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -69,13 +70,21 @@ main {
 }
 
 .ayah-control-button {
-    margin: 10px;
+    margin: 5px 0;
     flex: 1;
 }
 
 .ayah-bookmark-button {
-    margin: 10px;
-    margin-top: 0px;
+    margin: 5px 0;
+    flex: 1;
+}
+
+.ayah-add-mistake-button {
+    margin: 5px 0;
+    flex: 1;
+}
+.ayah-remove-mistake-button {
+    margin: 5px 0;
     flex: 1;
 }
 
@@ -215,12 +224,12 @@ audio {
 .ayah-list {
     width: 100%;
     margin-top: 10px;
-    max-height: 500px;
+    max-height: calc(100vh - 45px - 10px - 55px - 59px ); /* 10px is the margin-top */
+
     overflow-y: auto;
     border: 1px solid #ddd;
     background-color: #f9f9f9;
     position: relative;
-    z-index: 1;
     flex: 1;
 }
 
@@ -253,7 +262,7 @@ header {
     display: flex;
     flex-direction: row;
     position: fixed;
-    z-index: 10;
+    z-index: 2;
 }
 
 .logo-section {
@@ -292,4 +301,46 @@ header {
 
 .logo-name {
     margin-left: 10px;
+}
+
+h1 {
+    font-size: 50px;
+    font-weight: bold;
+    font-family: Baghdad;
+}
+
+h2 {
+    font-size: 40px;
+    font-weight: bold;
+    font-family: Baghdad;
+}
+
+h3 {
+    font-size: 30px;
+    font-weight: bold;
+    font-family: Baghdad;
+}
+
+h4 {
+    font-size: 20px;
+    font-weight: lighter;
+    font-family: Baghdad;
+}
+
+.BtnHomeworkFunc {
+    width: 80px;
+}
+
+.approveHomework-recordingDetails {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+}
+
+.approveHomework-recordingDetails p {
+    flex: 1;
+    display: flex;
+    justify-content: center;
 }
