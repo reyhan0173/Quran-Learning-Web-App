@@ -17,11 +17,23 @@ body {
     overflow: hidden;
 }
 
+
 /* ======- FORM -======= */
 .wrapper {
     position: relative;
     width: 400px;
     height: 500px;
+    transition: width 0.7s ease-in-out, height 0.7s ease-in-out; /**/
+}
+
+.wrapper.animate-signUp {
+    width: 400px;
+    height: 500px;
+}
+
+.wrapper.animate-signIn {
+    width: 400px;
+    height: 600px;
 }
 
 /* Form color */
@@ -46,6 +58,10 @@ body {
 
 .wrapper.animate-signIn .form-wrapper.sign-in {
     animation: animateSignIn 1.5s ease-in-out forwards;
+}
+
+.form-wrapper.sign-up form {
+    display: none;
 }
 
 @keyframes animateSignIn {
@@ -106,11 +122,24 @@ h2 {
     color: rgb(73, 105, 137);
     text-align: center;
 }
+
+.name-input {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.name-input .input-group {
+    flex: 1;
+    width: 100px;
+    margin: 0;
+}
+
 /* Input text */
 .input-group {
     position: relative;
     width: 320px;
-    margin: 30px 0;
+    margin: 20px 0;
 }
 
 .input-group label {
@@ -194,4 +223,62 @@ h2 {
 
 .sign-link p a:hover {
     text-decoration: underline;
+}
+
+.phone-group {
+    display: flex;
+    gap: 10px;
+}
+
+.phone-group .code-input,
+.phone-group .code-input select {
+    width: 90px;
+    height: 40px;
+}
+
+.phone-group .code-input select {
+    background: transparent;
+}
+
+.phone-group .phone-input {
+    flex: 1;
+    position: relative;
+}
+
+.phone-group .phone-input label {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: rgb(73, 105, 137);
+    padding: 0 5px;
+    pointer-events: none;
+    transition: .5s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 1.3s forwards;
+}
+
+.fade-out {
+    animation: fadeOut 1.3s forwards;
 }

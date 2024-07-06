@@ -1,9 +1,8 @@
-
 const AyahFormatting = require('./ayahFormattingTable');
 
 async function hasMistake(studentId, courseId, surah_ayah){
     let [surah, verse] = surah_ayah.split(":").map(Number);
-    
+
     try {
         const result = await AyahFormatting.findOne({
             where: {
@@ -24,6 +23,8 @@ async function hasMistake(studentId, courseId, surah_ayah){
 
 async function addMistake(studentId, courseId, surahNumber, ayahNumber, newMistakes){
     try{
+        console.log("_____DEBUG 12_____");
+        console.log(studentId, courseId, surahNumber, ayahNumber, newMistakes);
         const result = await AyahFormatting.findOne({
             where: {
                 studentId: studentId,
@@ -32,18 +33,22 @@ async function addMistake(studentId, courseId, surahNumber, ayahNumber, newMista
                 ayahNumber: ayahNumber
             }
         });
+        console.log(result);
 
         if (result) {
             // Merge existing mistakes with new mistakes
             let existingMistakes = result.mistakes || [];
 
-            result.mistakes =  [...new Set([...existingMistakes, ...newMistakes])];;
+            result.mistakes =  [...new Set([...existingMistakes, ...newMistakes])];
             await result.save();
             console.log(`Successfully added mistakes for ${surahNumber}:${ayahNumber}`);
         } else {
             await AyahFormatting.create({
+                studentId: studentId,
+                courseId: courseId,
                 surahNumber: surahNumber,
                 ayahNumber: ayahNumber,
+                isBookmarked: 0,
                 mistakes: newMistakes,
             });
             console.log(`Successfully created and added mistakes for ${surahNumber}:${ayahNumber}`);

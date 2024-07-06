@@ -3,8 +3,8 @@ import { useAudioPlayer } from './AudioPlayerContext'; // Import the context
 
 const RECITER = 3;
 
-const AyahContainer = ({ ayahData }) => {
-    const { studentId, courseId, current_posStr, verse, mistakes: initialMistakes, isBookmarked: initialIsBookmarked } = ayahData;
+const AyahContainer = ({ studentId, courseId, ayahData }) => {
+    const { current_posStr, verse, mistakes: initialMistakes, isBookmarked: initialIsBookmarked } = ayahData;
     const [mistakes, setMistakes] = useState(initialMistakes || []);
     const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked || 0);
     const [loop, setLoop] = useState(10); // Set initial loop value to 10
@@ -111,7 +111,7 @@ const AyahContainer = ({ ayahData }) => {
             return;
         }
 
-        const selectedText = selection.toString();
+        const selectedText = selection.toString().trim();
         if (!selectedText) {
             alert("Please select text to mark as a mistake.");
             return;
@@ -128,7 +128,7 @@ const AyahContainer = ({ ayahData }) => {
         const startOffset = range.startOffset;
 
         if (startContainer.nodeType !== Node.TEXT_NODE || !ayahElement.contains(startContainer)) {
-            alert("Error: Selected text is not within the correct verse.");
+            alert(`Error: Selected text is not within the correct verse. ${startContainer}`);
             return;
         }
 
@@ -147,7 +147,7 @@ const AyahContainer = ({ ayahData }) => {
 
         const ayahText = verse;
         if (startIndex === -1 || ayahText.substring(startIndex, startIndex + selectedText.length) !== selectedText) {
-            alert("Error: Selected text not found in the verse.");
+            alert(`Error: Selected text not found in the verse. \n|${selectedText}|`);
             return;
         }
 
@@ -157,6 +157,9 @@ const AyahContainer = ({ ayahData }) => {
         }
 
         try {
+            console.log("_____DEBUG 14_____")
+            console.log(studentId);
+
             const response = await fetch("http://localhost:501/addMistake", {
                 method: "POST",
                 headers: {
@@ -181,7 +184,7 @@ const AyahContainer = ({ ayahData }) => {
             return;
         }
 
-        const selectedText = selection.toString();
+        const selectedText = selection.toString().trim();
         if (!selectedText) {
             alert("Please select text to remove as a mistake.");
             return;
@@ -281,25 +284,25 @@ const AyahContainer = ({ ayahData }) => {
                     data-loop={loop}
                     onClick={handlePlayPause}
                 >
-                    {currentAyah === current_posStr && isPlaying ? 'Pause' : 'Play'}
+                    <i className={currentAyah === current_posStr && isPlaying ? `fa fa-pause` : `fa fa-play`}></i>
                 </button>
                 <button
                     className="ayah-bookmark-button"
                     onClick={toggleBookmark}
                 >
-                    {isBookmarked ? "Remove Bookmark" : "Bookmark"}
+                    <i className={isBookmarked ? `fa fa-bookmark` :  `fa fa-bookmark-o`}></i>
                 </button>
                 <button
                     className="ayah-add-mistake-button"
                     onClick={addMistake}
                 >
-                    Add a Mistake
+                    <i className={`fas fa-pen`}></i>
                 </button>
                 <button
                     className="ayah-remove-mistake-button"
                     onClick={removeMistake}
                 >
-                    Remove a Mistake
+                    <i className={`fas fa-eraser`}></i>
                 </button>
             </div>
 
@@ -315,7 +318,7 @@ const AyahContainer = ({ ayahData }) => {
                 </p>
             </div>
             <div className="number-input-container">
-                <p className="loop-counter">{playCount}/{loop}</p> {/* Display play count */}
+                <p className="loop-counter">{playCount}/{loop}</p>
                 <input
                     type="number"
                     className="loop-number-input"
