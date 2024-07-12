@@ -17,17 +17,17 @@ function App() {
         <div className="App">
           <Header />
           <div className="App-body">
-            {/*<Sidebar>*/}
-            {/*  <SidebarItem icon={<LayoutDashboard size={20} />} text="Dashboard" alert />*/}
-            {/*  <SidebarItem icon={<BarChart2 size={20} />} text="Analytics" active />*/}
-            {/*  <SidebarItem icon={<BarChart2 size={20} />} text="Analytics" active />*/}
-            {/*  <SidebarItem icon={<BarChart2 size={20} />} text="Analytics" active />*/}
-            {/*  <SidebarItem icon={<BarChart2 size={20} />} text="Analytics" active />*/}
-            {/*  <SidebarItem icon={<BarChart2 size={20} />} text="Analytics" active />*/}
-            {/*  <SidebarItem icon={<BarChart2 size={20} />} text="Analytics" active />*/}
-            {/*  <SidebarItem icon={<BarChart2 size={20} />} text="Analytics" active />*/}
-            {/*  <SidebarItem icon={<BarChart2 size={20} />} text="Analytics" active />*/}
-            {/*</Sidebar>*/}
+            <Sidebar>
+              <SidebarItem icon={<LayoutDashboard size={20} />} text="Dashboard" alert />
+              <SidebarItem icon={<BarChart2 size={20} />} text="Analytics" active />
+              <SidebarItem icon={<BarChart2 size={20} />} text="Analytics" active />
+              <SidebarItem icon={<BarChart2 size={20} />} text="Analytics" active />
+              <SidebarItem icon={<BarChart2 size={20} />} text="Analytics" active />
+              <SidebarItem icon={<BarChart2 size={20} />} text="Analytics" active />
+              <SidebarItem icon={<BarChart2 size={20} />} text="Analytics" active />
+              <SidebarItem icon={<BarChart2 size={20} />} text="Analytics" active />
+              <SidebarItem icon={<BarChart2 size={20} />} text="Analytics" active />
+            </Sidebar>
 
             <main>
               <AyahList studentId={1111115} courseId={123} startPos={"10:13"} endPos={"10:15"} />
