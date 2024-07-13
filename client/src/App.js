@@ -15,6 +15,7 @@ import {BiBook, BiMale, BiCalendar, BiGroup, BiChalkboard} from 'react-icons/bi'
 import HomeworkCard from "./components/HomeworkCard";
 import Table from "./components/Table";
 import ClassPlacement from "./components/ClassPlacement";
+import MistakeButtons from "./components/MistakeButtons";
 
 const Tables = () => (
   <Table />
@@ -30,18 +31,18 @@ const Dashboard = () => (
 
 const Analytics = () => <div>Analytics Page</div>;
 const QuranExplorer = () => (
-  <div>
-    <AyahList studentId={1111115} courseId={123} startPos={"10:13"} endPos={"10:20"} />
-    <AudioRecorder />
-    <AudioPlayer />
-    <Approve studentId={1111115} courseId={123} startPos={"10:8"} endPos={"10:20"} />
-    <Assign studentId={1111115} courseId={123} startPos={"10:8"} endPos={"10:15"} />
-  </div>
+    <AudioPlayerProvider>
+      <AyahList studentId={1111115} courseId={123} startPos={"108:1"} endPos={"110:3"} />
+      <MistakeButtons />
+      <AudioRecorder />
+      <AudioPlayer />
+      <Approve studentId={1111115} courseId={123} startPos={"108:1"} endPos={"110:3"} />
+      <Assign studentId={1111115} courseId={123} startPos={"108:1"} endPos={"110:3"} />
+    </AudioPlayerProvider>
 );
 
 const App = () => {
   return (
-    <AudioPlayerProvider>
       <Router>
         <div className="App">
           <Header />
@@ -56,18 +57,17 @@ const App = () => {
               <SidebarItem to="/profile" icon={<BiMale size={40} />} text="Profile" active />
             </Sidebar>
             <main>
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/analytics" element={<Analytics />} />
-                <Route path="/quran-explorer" element={<QuranExplorer />} />
-                <Route path="/homework-cards" element={<HomeworkCards />} />
-                <Route path="/tables" element={<Tables />} />
-              </Routes>
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/analytics" element={<Analytics />} />
+                  <Route path="/quran-explorer" element={<QuranExplorer />} />
+                  <Route path="/homework-cards" element={<HomeworkCards />} />
+                  <Route path="/tables" element={<Tables />} />
+                </Routes>
             </main>
           </div>
         </div>
       </Router>
-    </AudioPlayerProvider>
   );
 };
 

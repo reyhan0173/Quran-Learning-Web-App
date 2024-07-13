@@ -231,7 +231,7 @@ audio {
 }
 
 .single-player-2 {
-    flex: 1;
+    width: 100%;
 }
 
 .hidden {
