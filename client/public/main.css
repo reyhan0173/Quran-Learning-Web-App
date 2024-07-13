@@ -1,11 +1,16 @@
+html, body, #root {
+    height: 100%;
+}
+
 .App {
+    display: flex;
+    flex-direction: column;
     height: 100%;
 }
 
 .App-body {
-    margin-top: 45px;
     display: flex;
-    height: calc(100% - 45px);
+    flex: 1; /* Make sure the body takes the remaining space */
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -24,6 +29,12 @@
 }
 
 body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
     margin: 0;
     padding: 0;
     background-color: white;
@@ -31,14 +42,20 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
+
 }
 
 main {
-    width: 100%;
+    padding: 55px 85px 20px 75px;
     height: 100%;
+    width: 100%;
+
     display: flex;
     flex-direction: column;
-    flex: 1;
+
+    align-items: center; /* Center horizontally */
+    flex: 1; /* Ensure main takes the remaining space */
+    justify-content: center;
 }
 
 .ayah-container {
@@ -223,8 +240,7 @@ audio {
 
 .ayah-list {
     width: 100%;
-    margin-top: 10px;
-    max-height: calc(100vh - 45px - 10px - 55px - 59px ); /* 10px is the margin-top */
+    max-height: calc(100vh - 45px - 10px - 55px - 59px - 20px); /* 10px is the margin-top */
 
     overflow-y: auto;
     border: 1px solid #ddd;
@@ -343,4 +359,20 @@ h4 {
     flex: 1;
     display: flex;
     justify-content: center;
+}
+
+.sidebar-section {
+    margin-top: 45px;
+}
+
+.ClassPlacement {
+    background-color: #52616B;
+    color: white;
+
+    padding: 15px 20px;
+    border-radius: 10px;
+
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
 }
