@@ -6,6 +6,8 @@ const Mistakes = require("./mistakesFormatting");
 const Bookmark = require("./bookmarkFormatting");
 ourApp.use(express.json());
 const AyahInfo = require("./AyahInfo"); // Import the AyahInfo model
+const AWS = require('aws-sdk')
+const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider();
 
 const PORT_NUMBER = 501;
 
@@ -13,6 +15,35 @@ let User = {
   studentId: null,
   courseId: null
 }
+
+AWS.config.update({
+  region: 'us-east-2',
+  credentials: {
+    accessKeyId:'',
+    secretAccessKey:''
+  }
+});
+
+async function authenticateUser(username, password) {
+  const params = {
+    AuthFlow: 'USER_PASSWORD_AUTH',
+    ClientId: '1f6l25k8h5f4gc3ldo1a7kcb2e',
+    AuthParameters: {
+      USERNAME: username,
+      PASSWORD: password,
+    }
+  };
+
+  try {
+    const data = await cognitoIdentityServiceProvider.initiateAuth(params).promise();
+    console.log('User authenticated:', data.AuthenticationResult);
+    return data.AuthenticationResult; // Token and other details
+  } catch (err) {
+    console.error('Authentication error:', err);
+    throw err;
+  }
+}
+
 // Serve static files from the 'public' directory
 ourApp.use(express.urlencoded({ extended: false }));
 ourApp.use(express.static("public"));
