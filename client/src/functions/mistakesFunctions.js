@@ -1,5 +1,7 @@
 // Add mistake to the current ayah
 export const addMistake = async (studentId, courseId, current_posStr, verse, mistakes, setMistakes) => {
+  console.log(`${studentId}||${courseId}||${current_posStr}||${verse}||${mistakes}||${setMistakes}||`);
+
   const selection = window.getSelection();
   if (selection.rangeCount === 0) {
     alert("Please select text to mark as a mistake.");
