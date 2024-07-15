@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import AWS from "aws-sdk";
+import axios from "axios";
 
 AWS.config.update({
   region: 'us-east-2',
@@ -17,65 +18,38 @@ export default function Login({ onLogin }) {
   const handleSignUp = async (e) => {
     e.preventDefault();
 
-    const cognito = new AWS.CognitoIdentityServiceProvider();
-    const signUpParams = {
-      ClientId: '1f6l25k8h5f4gc3ldo1a7kcb2e',
-      Username: username,
-      Password: password,
-      UserAttributes: [
-        { Name: 'given_name', Value: firstName },
-        { Name: 'family_name', Value: lastName },
-        { Name: 'phone_number', Value: phoneNumber },
-        { Name: 'email', Value: email },
-        { Name: 'birthdate', Value: dateOfBirth },
-        // Add more user attributes as needed
-      ]
-    };
-
     try {
-      const data = await cognito.signUp(signUpParams).promise();
-      console.log('Sign up success:', data);
-      // Optionally handle success, navigate to login, etc.
-      alert('Sign up successful! Please check your email for verification.');
+      const response = await axios.post("http://localhost:501/signup", {
+        firstName,
+        lastName,
+        phoneNumber,
+        email,
+        dateOfBirth,
+        username,
+        password
+      });
+      alert(response.data);
       onLogin();
     } catch (err) {
       console.error('Sign up error:', err);
       alert('Sign up error: ' + err.message);
-      // Handle sign up errors (e.g., username taken, validation errors)
     }
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const cognito = new AWS.CognitoIdentityServiceProvider();
-    const loginParams = {
-      AuthFlow: 'USER_PASSWORD_AUTH',
-      ClientId: '1f6l25k8h5f4gc3ldo1a7kcb2e',
-      AuthParameters: {
-        USERNAME: username,
-        PASSWORD: password
-      }
-    };
-
     try {
-      const data = await cognito.initiateAuth(loginParams).promise();
-      console.log('Login success:', data);
+      const response = await axios.post("http://localhost:501/login", {
+        username,
+        password
+      });
 
-      if (data.AuthenticationResult) {
-        const { AccessToken, IdToken, RefreshToken } = data.AuthenticationResult;
-
-        // Store tokens in localStorage (you might want to secure this in production)
-        localStorage.setItem('accessToken', AccessToken);
-        localStorage.setItem('idToken', IdToken);
-        localStorage.setItem('refreshToken', RefreshToken);
-
-        // Optionally handle success, navigate to app, etc.
-        onLogin();
-      } else {
-        console.error('Login error: No authentication result found');
-        alert('Login error: No authentication result found');
-      }
+      const { AccessToken, IdToken, RefreshToken } = response.data;
+      localStorage.setItem('accessToken', AccessToken);
+      localStorage.setItem('idToken', IdToken);
+      localStorage.setItem('refreshToken', RefreshToken);
+      onLogin();
     } catch (err) {
       console.error('Login error:', err);
       alert('Login error: ' + err.message);
