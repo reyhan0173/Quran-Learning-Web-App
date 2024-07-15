@@ -114,6 +114,35 @@ async function getAyahData(studentId, courseId, startPos, endPos) {
   return await Promise.all(promises);
 }
 
+async function AuthUser(username, password) {
+  const authParams = {
+    AuthFlow: 'USER_PASSWORD_AUTH',
+    ClientId: '1f6l25k8h5f4gc3ldo1a7kcb2e',
+    AuthParameters: {
+      USERNAME: username,
+      PASSWORD: password,
+    }
+  };
+
+  const groupParams = {
+    UserPoolId: 'us-east-2_2Y9XxyYFs',
+    Username: username,
+  };
+
+  try {
+    const authData = await cognitoIdentityServiceProvider.initiateAuth(authParams).promise();
+    console.log('User authenticated:', authData.AuthenticationResult);
+
+    const groupData = await cognitoIdentityServiceProvider.adminListGroupsForUser(groupParams).promise();
+    const group = groupData.Groups.map(group => group.GroupName);
+
+    return { authenticationResult: authData.AuthenticationResult, group: group[0] };
+  } catch (err) {
+    console.error('Authentication and group retrieval error:', err);
+    throw err;
+  }
+}
+
 ourApp.post("/signup", async (req, res) => {
   const { firstName, lastName, phoneNumber, email, dateOfBirth, username, password } = req.body;
 
@@ -143,28 +172,11 @@ ourApp.post("/signup", async (req, res) => {
 ourApp.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
-  const loginParams = {
-    AuthFlow: 'USER_PASSWORD_AUTH',
-    ClientId: '1f6l25k8h5f4gc3ldo1a7kcb2e',
-    AuthParameters: {
-      USERNAME: username,
-      PASSWORD: password
-    }
-  };
-
   try {
-    const data = await cognitoIdentityServiceProvider.initiateAuth(loginParams).promise();
-    console.log('Login success:', data);
-
-    if (data.AuthenticationResult) {
-      const { AccessToken, IdToken, RefreshToken } = data.AuthenticationResult;
-      res.status(200).json({ AccessToken, IdToken, RefreshToken });
-    } else {
-      res.status(500).send('Login error: No authentication result found');
-    }
+    const data = await AuthUser(username, password);
+    res.json(data);
   } catch (err) {
-    console.error('Login error:', err);
-    res.status(500).send('Login error: ' + err.message);
+    res.status(500).json({ error: 'Authentication failed' });
   }
 });
 

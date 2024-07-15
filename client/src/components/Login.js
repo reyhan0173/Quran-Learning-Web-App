@@ -38,18 +38,19 @@ export default function Login({ onLogin }) {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
     try {
       const response = await axios.post("http://localhost:501/login", {
         username,
         password
       });
 
-      const { AccessToken, IdToken, RefreshToken } = response.data;
+      const { AccessToken, IdToken, RefreshToken, group } = response.data;
       localStorage.setItem('accessToken', AccessToken);
       localStorage.setItem('idToken', IdToken);
       localStorage.setItem('refreshToken', RefreshToken);
-      onLogin();
+      localStorage.setItem('userGroup', group); // Store user group
+
+      onLogin(); // Call parent function to handle login state change
     } catch (err) {
       console.error('Login error:', err);
       alert('Login error: ' + err.message);
