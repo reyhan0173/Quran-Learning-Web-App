@@ -1,5 +1,6 @@
 import { ChevronLast, ChevronFirst } from "lucide-react";
 import { createContext, useContext, useState } from "react";
+import { Link } from 'react-router-dom';
 
 const SidebarContext = createContext();
 
@@ -7,7 +8,7 @@ export default function Sidebar({ children }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-      <div className="relative">
+      <div className="relative sidebar-section">
         <aside
             className={`sidebar fixed top-15 left-0 h-screen z-50 bg-white shadow-lg transition-all ${
                 expanded ? "w-1/5" : "w-16"
@@ -47,13 +48,14 @@ export default function Sidebar({ children }) {
   );
 }
 
-export function SidebarItem({ icon, text, active, alert }) {
+export function SidebarItem({ to, icon, text, active, alert }) {
   const { expanded } = useContext(SidebarContext);
 
   return (
-      <li
+    <Link to={to} className="w-full">
+    <li
           className={`
-        relative flex items-center py-2 px-3 my-1
+        relative flex items-center py-1 px-2 my-1
         font-medium rounded-md cursor-pointer
         transition-colors group
         ${
@@ -92,5 +94,6 @@ export function SidebarItem({ icon, text, active, alert }) {
             </div>
         )}
       </li>
+    </Link>
   );
 }
