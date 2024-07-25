@@ -47,7 +47,6 @@ export default function Login({ onLogin }) {
       const { authenticationResult, group } = response.data;
       const { AccessToken, IdToken, RefreshToken } = authenticationResult;
 
-
       console.log('AccessToken:', AccessToken); // Log the AccessToken
       console.log('IdToken:', IdToken); // Log the IdToken
       console.log('RefreshToken:', RefreshToken); // Log the RefreshToken
