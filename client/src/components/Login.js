@@ -38,23 +38,36 @@ export default function Login({ onLogin }) {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
     try {
       const response = await axios.post("http://localhost:501/login", {
         username,
         password
       });
 
-      const { AccessToken, IdToken, RefreshToken } = response.data;
-      localStorage.setItem('accessToken', AccessToken);
-      localStorage.setItem('idToken', IdToken);
-      localStorage.setItem('refreshToken', RefreshToken);
-      onLogin();
+      const { authenticationResult, group } = response.data;
+      const { AccessToken, IdToken, RefreshToken } = authenticationResult;
+
+
+      console.log('AccessToken:', AccessToken); // Log the AccessToken
+      console.log('IdToken:', IdToken); // Log the IdToken
+      console.log('RefreshToken:', RefreshToken); // Log the RefreshToken
+
+      if (AccessToken && IdToken && RefreshToken) {
+        localStorage.setItem('accessToken', AccessToken);
+        localStorage.setItem('idToken', IdToken);
+        localStorage.setItem('refreshToken', RefreshToken);
+        localStorage.setItem('userGroup', group); // Store user group
+
+        onLogin(); // Call parent function to handle login state change
+      } else {
+        throw new Error('Tokens are undefined');
+      }
     } catch (err) {
       console.error('Login error:', err);
       alert('Login error: ' + err.message);
     }
   };
+
 
   return (
       <div className="wrapper">

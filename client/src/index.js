@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 import Login from './components/Login';
 import AWS from 'aws-sdk';
+import HomeworkCard from "./components/HomeworkCard";
 
 // AWS Cognito configuration
 AWS.config.region = 'us-east-2'; // Replace with your region
@@ -29,6 +30,7 @@ function unloadCSS(filename) {
 
 function Main() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userGroup, setUserGroup] = useState('');
 
   useEffect(() => {
     // Check if user is already logged in
@@ -39,6 +41,10 @@ function Main() {
           console.error(err);
           setIsLoggedIn(false);
         } else {
+          // Example: Assume userGroup is stored in localStorage after successful login
+          const storedUserGroup = localStorage.getItem('userGroup');
+          setUserGroup(storedUserGroup || '');
+
           setIsLoggedIn(true);
         }
       });
@@ -67,7 +73,7 @@ function Main() {
 
   return (
       <React.StrictMode>
-        {isLoggedIn ? <App /> : <Login onLogin={handleLogin} />}
+        {isLoggedIn ? (userGroup === 'Students' ? <App /> : <HomeworkCard></HomeworkCard>) : <Login onLogin={handleLogin} />}
       </React.StrictMode>
   );
 }
