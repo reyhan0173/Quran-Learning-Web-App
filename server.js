@@ -1,26 +1,39 @@
+const PORT_NUMBER = 501;
+
 const express = require("express");
 const cors = require("cors");
-const ourApp = express();
+const AWS = require('aws-sdk')
+
 const Surah = require("./Surah");
 const Mistakes = require("./mistakesFormatting");
 const Bookmark = require("./bookmarkFormatting");
-ourApp.use(express.json());
 const AyahInfo = require("./AyahInfo"); // Import the AyahInfo model
 
-const PORT_NUMBER = 501;
+const ourApp = express();
+
+// Serve static files from the 'public' directory
+ourApp.use(express.json());
+ourApp.use(express.urlencoded({ extended: false }));
+ourApp.use(express.static("public"));
+ourApp.use(cors())
+// first
+// second
+ourApp.set("view engine", "ejs"); // Set EJS as the template engine
+
+AWS.config.update({
+  region: 'us-east-2',
+  credentials: {
+    accessKeyId:'',
+    secretAccessKey:''
+  }
+});
+
+const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider();
 
 let User = {
   studentId: null,
   courseId: null
 }
-// Serve static files from the 'public' directory
-ourApp.use(express.urlencoded({ extended: false }));
-ourApp.use(express.static("public"));
-ourApp.use(cors())
-ourApp.set("view engine", "ejs"); // Set EJS as the template engine
-
-const fetch = (...args) =>
-  import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 async function getAyahCount(surahNumber) {
   try {
@@ -46,8 +59,6 @@ async function fetchVerse(surahNumber, ayahNumber) {
     return null; // Return null in case of error
   }
 }
-
-
 
 async function getAyahData(studentId, courseId, startPos, endPos) {
   startPos = startPos.split(":").map(Number);
@@ -104,6 +115,90 @@ async function getAyahData(studentId, courseId, startPos, endPos) {
 
   return await Promise.all(promises);
 }
+
+async function AuthUser(username, password) {
+  const authParams = {
+    AuthFlow: 'USER_PASSWORD_AUTH',
+    ClientId: '1f6l25k8h5f4gc3ldo1a7kcb2e',
+    AuthParameters: {
+      USERNAME: username,
+      PASSWORD: password,
+    }
+  };
+
+  const groupParams = {
+    UserPoolId: 'us-east-2_2Y9XxyYFs',
+    Username: username,
+  };
+
+  try {
+    const authData = await cognitoIdentityServiceProvider.initiateAuth(authParams).promise();
+    console.log('User authenticated:', authData.AuthenticationResult);
+
+    const groupData = await cognitoIdentityServiceProvider.adminListGroupsForUser(groupParams).promise();
+    const group = groupData.Groups.map(group => group.GroupName);
+
+    return { authenticationResult: authData.AuthenticationResult, group: group[0] };
+  } catch (err) {
+    console.error('Authentication and group retrieval error:', err);
+    throw err;
+  }
+}
+
+ourApp.post("/signup", async (req, res) => {
+  const { firstName, lastName, phoneNumber, email, dateOfBirth, username, password } = req.body;
+
+  const signUpParams = {
+    ClientId: '1f6l25k8h5f4gc3ldo1a7kcb2e',
+    Username: username,
+    Password: password,
+    UserAttributes: [
+      { Name: 'given_name', Value: firstName },
+      { Name: 'family_name', Value: lastName },
+      { Name: 'phone_number', Value: phoneNumber },
+      { Name: 'email', Value: email },
+      { Name: 'birthdate', Value: dateOfBirth }
+    ]
+  };
+
+  try {
+    const data = await cognitoIdentityServiceProvider.signUp(signUpParams).promise();
+    console.log('Sign up success:', data);
+    res.status(200).send('Sign up successful! Please check your email for verification.');
+  } catch (err) {
+    console.error('Sign up error:', err);
+    res.status(500).send('Sign up error: ' + err.message);
+  }
+});
+
+ourApp.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const data = await AuthUser(username, password);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Authentication failed' });
+  }
+});
+
+ourApp.post("/logout", async (req, res) => {
+  const { accessToken } = req.body;
+
+  const params = {
+    AccessToken: accessToken
+  };
+
+  try {
+    await cognitoIdentityServiceProvider.globalSignOut(params).promise();
+    res.json({ message: 'Successfully signed out globally' });
+  } catch (err) {
+    console.error('Global sign out error:', err);
+    res.status(500).json({ error: 'Global sign out failed' });
+  }
+});
+
+
 
 ourApp.post("/fetchAyahs", async (req, res) => {
   try {
@@ -203,6 +298,7 @@ ourApp.post("/addMistake", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
 ourApp.post("/removeMistake", async (req, res) => {
   try {
     const { studentId, courseId, current_posStr, mistakeIndexes } = req.body;

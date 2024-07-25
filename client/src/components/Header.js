@@ -1,4 +1,5 @@
 import {ChevronFirst, Bell, MessageCircle} from "lucide-react";
+import Logout from "./Logout";
 
 export default function Header() {
     return (
@@ -18,10 +19,13 @@ export default function Header() {
             {/* Right side: Icons */}
             <div className="flex items-center">
                 <button className="text-gray-600 hover:text-gray-900 mr-4">
-                    <MessageCircle className="h-6 w-6" />
+                    <MessageCircle className="h-6 w-6"/>
+                </button>
+                <button className="text-gray-600 hover:text-gray-900 mr-4">
+                    <Logout></Logout>
                 </button>
                 <button className="text-gray-600 hover:text-gray-900 mr-4 relative">
-                    <Bell className="h-6 w-6" />
+                    <Bell className="h-6 w-6"/>
                     <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1 text-xs">3</span>
                 </button>
                 <div className="relative">

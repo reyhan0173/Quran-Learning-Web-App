@@ -1,61 +1,73 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
+import AWS from "aws-sdk";
+import axios from "axios";
+
+AWS.config.update({
+  region: 'us-east-2',
+});
 
 export default function Login({ onLogin }) {
-  useEffect(() => {
-    const wrapper = document.querySelector('.wrapper');
-    const signUpLink = document.querySelector('.signUp-link');
-    const signInLink = document.querySelector('.signIn-link');
-    const signUpForm = wrapper.querySelector('.form-wrapper.sign-up form');
-    const signInForm = wrapper.querySelector('.form-wrapper.sign-in form');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [email, setEmail] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
-    signUpLink.addEventListener('click', () => {
-      wrapper.classList.add('animate-signIn');
-      wrapper.classList.remove('animate-signUp');
-      signUpForm.style.display = 'block';
-      signUpForm.classList.add('fade-in');
-      signInForm.classList.add('fade-out');
+  const handleSignUp = async (e) => {
+    e.preventDefault();
 
-      setTimeout(() => {
-        signInForm.style.display = 'none';
-        signInForm.classList.remove('fade-out');
-      }, 1400);
-    });
-
-    signInLink.addEventListener('click', () => {
-      wrapper.classList.add('animate-signUp');
-      wrapper.classList.remove('animate-signIn');
-      signInForm.style.display = 'block';
-      signInForm.classList.add('fade-in');
-      signUpForm.classList.add('fade-out');
-
-      setTimeout(() => {
-        signUpForm.style.display = 'none';
-        signUpForm.classList.remove('fade-out');
-      }, 1400)
-    });
-
-    document.querySelectorAll('.input-group input').forEach(input => {
-      input.addEventListener('input', () => {
-        if (input.value) {
-          input.classList.add('not-empty');
-        } else {
-          input.classList.remove('not-empty');
-        }
+    try {
+      const response = await axios.post("http://localhost:501/signup", {
+        firstName,
+        lastName,
+        phoneNumber,
+        email,
+        dateOfBirth,
+        username,
+        password
       });
-    });
-  }, []);
-
-  const handleSignUp = (e) => {
-    e.preventDefault();
-    // Perform sign-up logic here
-    onLogin();
+      alert(response.data);
+      onLogin();
+    } catch (err) {
+      console.error('Sign up error:', err);
+      alert('Sign up error: ' + err.message);
+    }
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Perform login logic here
-    onLogin();
+    try {
+      const response = await axios.post("http://localhost:501/login", {
+        username,
+        password
+      });
+
+      const { authenticationResult, group } = response.data;
+      const { AccessToken, IdToken, RefreshToken } = authenticationResult;
+
+      console.log('AccessToken:', AccessToken); // Log the AccessToken
+      console.log('IdToken:', IdToken); // Log the IdToken
+      console.log('RefreshToken:', RefreshToken); // Log the RefreshToken
+
+      if (AccessToken && IdToken && RefreshToken) {
+        localStorage.setItem('accessToken', AccessToken);
+        localStorage.setItem('idToken', IdToken);
+        localStorage.setItem('refreshToken', RefreshToken);
+        localStorage.setItem('userGroup', group); // Store user group
+
+        onLogin(); // Call parent function to handle login state change
+      } else {
+        throw new Error('Tokens are undefined');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      alert('Login error: ' + err.message);
+    }
   };
+
+
 
   return (
       <div className="wrapper">
@@ -64,40 +76,86 @@ export default function Login({ onLogin }) {
             <h2>Sign Up</h2>
             <div className="name-input">
               <div className="input-group">
-                <input type="text" required placeholder=" " />
+                <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder=" "
+                    required
+                />
                 <label>First Name</label>
               </div>
               <div className="input-group">
-                <input type="text" required placeholder=" " />
+                <input
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder=" "
+                    required
+                />
                 <label>Last Name</label>
               </div>
             </div>
             <div className="input-group phone-group">
               <div className="code-input">
-                <select required>
+                <select
+                    value="+1" // Default value, change if needed
+                    onChange={(e) => console.log(e.target.value)} // Implement onChange handler as per requirement
+                    required
+                >
                   <option value="+1">🇺🇸 +1</option>
                   <option value="+91">🇮🇳 +91</option>
                 </select>
               </div>
               <div className="phone-input">
-                <input type="tel" required placeholder=" " />
+                <input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    placeholder=" "
+                    required
+                />
                 <label>Phone Number</label>
               </div>
             </div>
             <div className="input-group">
-              <input type="email" required placeholder=" " />
+              <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder=" "
+                  required
+              />
               <label>Email</label>
             </div>
             <div className="input-group">
-              <input type="date" required placeholder=" " />
+              <input
+                  type="date"
+                  value={dateOfBirth}
+                  onChange={(e) => setDateOfBirth(e.target.value)}
+                  placeholder=" "
+                  required
+              />
               <label>Date of Birth</label>
             </div>
             <div className="input-group">
-              <input type="text" required placeholder=" " />
+              <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder=" "
+                  required
+              />
               <label>Username</label>
             </div>
             <div className="input-group">
-              <input type="password" required placeholder=" " />
+              <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder=" "
+                  required
+              />
               <label>Password</label>
             </div>
             <button type="submit" className="btn">Sign Up</button>
@@ -111,11 +169,23 @@ export default function Login({ onLogin }) {
           <form id="logIn-form" onSubmit={handleLogin}>
             <h2>Login</h2>
             <div className="input-group">
-              <input type="text" required placeholder=" " />
+              <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder=" "
+                  required
+              />
               <label>Username</label>
             </div>
             <div className="input-group">
-              <input type="password" required placeholder=" " />
+              <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder=" "
+                  required
+              />
               <label>Password</label>
             </div>
             <div className="forgot-pass">
