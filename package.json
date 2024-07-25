@@ -2,6 +2,7 @@
   "name": "quran",
   "main": "server.js",
   "dependencies": {
+    "aws-sdk": "^2.1659.0",
     "bcryptjs": "^2.4.3",
     "connect-flash": "^0.1.1",
     "cors": "^2.8.5",
