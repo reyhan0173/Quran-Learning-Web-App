@@ -73,7 +73,7 @@ function Main() {
 
   return (
       <React.StrictMode>
-        {isLoggedIn ? (userGroup === 'Students' ? <App /> : <HomeworkCard></HomeworkCard>) : <Login onLogin={handleLogin} />}
+        {isLoggedIn ? <App /> : <Login onLogin={handleLogin} />}
       </React.StrictMode>
   );
 }
