@@ -1,5 +1,7 @@
 const PORT_NUMBER = 501;
 
+require('dotenv').config();
+
 const express = require("express");
 const cors = require("cors");
 const AWS = require('aws-sdk')
@@ -132,18 +134,29 @@ async function AuthUser(username, password) {
   };
 
   try {
+    // Authenticate user
     const authData = await cognitoIdentityServiceProvider.initiateAuth(authParams).promise();
     console.log('User authenticated:', authData.AuthenticationResult);
 
+    // Get user group (role)
     const groupData = await cognitoIdentityServiceProvider.adminListGroupsForUser(groupParams).promise();
     const group = groupData.Groups.map(group => group.GroupName);
 
-    return { authenticationResult: authData.AuthenticationResult, group: group[0] };
+    // Include role in the JWT token payload
+    const payload = {
+      accessToken: authData.AuthenticationResult.AccessToken,
+      refreshToken: authData.AuthenticationResult.RefreshToken,
+      idToken: authData.AuthenticationResult.IdToken,
+      role: group[0]  // Include the user's role in the token payload
+    };
+
+    return { authenticationResult: payload };
   } catch (err) {
     console.error('Authentication and group retrieval error:', err);
     throw err;
   }
 }
+
 
 ourApp.post("/signup", async (req, res) => {
   const { firstName, lastName, phoneNumber, email, dateOfBirth, username, password } = req.body;
@@ -176,22 +189,42 @@ ourApp.post("/login", async (req, res) => {
 
   try {
     const data = await AuthUser(username, password);
+    console.log('data', data);
+
+    // Extract tokens and user info from the response
+    const { accessToken, userGroup } = data;
+
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: 'Authentication failed' });
   }
 });
 
+
 ourApp.post("/logout", async (req, res) => {
-  const { accessToken } = req.body;
-
-  const params = {
-    AccessToken: accessToken
-  };
-
   try {
+    const accessToken = req.session.accessToken; // Retrieve from session
+
+    if (!accessToken) {
+      return res.status(400).json({ error: "No access token available for logout" });
+    }
+
+    const params = {
+      AccessToken: accessToken
+    };
+
     await cognitoIdentityServiceProvider.globalSignOut(params).promise();
-    res.json({ message: 'Successfully signed out globally' });
+
+    // Clear session after logout
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Session destruction error:', err);
+        return res.status(500).json({ error: "Failed to destroy session" });
+      }
+
+      res.json({ message: 'Successfully signed out globally' });
+    });
+
   } catch (err) {
     console.error('Global sign out error:', err);
     res.status(500).json({ error: 'Global sign out failed' });
@@ -302,6 +335,18 @@ ourApp.post("/addMistake", async (req, res) => {
 ourApp.post("/removeMistake", async (req, res) => {
   try {
     const { studentId, courseId, current_posStr, mistakeIndexes } = req.body;
+
+    // Extract the token from the request header
+    const token = req.headers.authorization.split(' ')[1];
+
+    // Verify the token and extract the payload
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET); // Replace process.env.JWT_SECRET with your actual secret
+
+    // Check if the user's role is "Teachers"
+    if (decodedToken.role !== 'Teachers') {
+      return res.status(403).send("Access Denied: You do not have the required permissions to perform this action.");
+    }
+
     let [surahNumber, ayahNumber] = current_posStr.split(":").map(Number);
 
     // Implement the logic to handle removing mistakes (e.g., update database)

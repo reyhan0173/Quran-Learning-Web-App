@@ -81,7 +81,7 @@ export default function Approve({ studentId, courseId, startPos, endPos }) {
                                     <i className="fas fa-arrow-right"></i>
                                 </button>
                             </div>
-                            <AudioPlayer/>
+                            {/*<AudioPlayer/>*/}
                         </section>
 
                         <div className="flex flex-col space-y-2 flex-1">

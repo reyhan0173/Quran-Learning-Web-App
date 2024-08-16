@@ -1,6 +1,7 @@
-import React, { useState } from "react";
 import AWS from "aws-sdk";
+import React, { useState } from "react";
 import axios from "axios";
+import { useAuth } from './AuthContext'; // Import the custom hook
 
 AWS.config.update({
   region: 'us-east-2',
@@ -14,6 +15,7 @@ export default function Login({ onLogin }) {
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const { login } = useAuth(); // Use the login function from context
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -44,18 +46,17 @@ export default function Login({ onLogin }) {
         password
       });
 
-      const { authenticationResult, group } = response.data;
-      const { AccessToken, IdToken, RefreshToken } = authenticationResult;
-
-      console.log('AccessToken:', AccessToken); // Log the AccessToken
-      console.log('IdToken:', IdToken); // Log the IdToken
-      console.log('RefreshToken:', RefreshToken); // Log the RefreshToken
+      const { authenticationResult } = response.data;
+      const { accessToken: AccessToken, idToken: IdToken, refreshToken: RefreshToken } = authenticationResult;
 
       if (AccessToken && IdToken && RefreshToken) {
-        localStorage.setItem('accessToken', AccessToken);
-        localStorage.setItem('idToken', IdToken);
-        localStorage.setItem('refreshToken', RefreshToken);
-        localStorage.setItem('userGroup', group); // Store user group
+        // Store authentication data in context
+        login({
+          accessToken: AccessToken,
+          idToken: IdToken,
+          refreshToken: RefreshToken,
+          userGroup: response.data.role // Update this to match the role property from the response
+        });
 
         onLogin(); // Call parent function to handle login state change
       } else {
@@ -66,6 +67,7 @@ export default function Login({ onLogin }) {
       alert('Login error: ' + err.message);
     }
   };
+
 
 
 
