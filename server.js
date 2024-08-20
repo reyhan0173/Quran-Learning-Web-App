@@ -3,6 +3,8 @@ const PORT_NUMBER = 501;
 require('dotenv').config();
 
 const express = require("express");
+const session = require("express-session");
+const bodyParser = require('body-parser')
 const cors = require("cors");
 const AWS = require('aws-sdk')
 
@@ -17,6 +19,14 @@ const ourApp = express();
 ourApp.use(express.json());
 ourApp.use(express.urlencoded({ extended: false }));
 ourApp.use(express.static("public"));
+ourApp.use(bodyParser.json());
+ourApp.use(session({
+  secret: 'lo2',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false }
+}));
+
 ourApp.use(cors())
 // first
 // second
@@ -191,19 +201,31 @@ ourApp.post("/login", async (req, res) => {
     const data = await AuthUser(username, password);
     console.log('data', data);
 
-    // Extract tokens and user info from the response
-    const { accessToken, userGroup } = data;
-
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: 'Authentication failed' });
   }
 });
 
+ourApp.post("/session-data", (req, res) => {
+  const { accessToken, userGroup } = req.body;
+
+  console.log('Setting session data:', { accessToken, userGroup }); // Debug line
+
+  // Set the session data
+  req.session.accessToken = accessToken;
+  req.session.userGroup = userGroup;
+
+  res.json({ message: 'Session set successfully' });
+});
+
+
 
 ourApp.post("/logout", async (req, res) => {
+  console.log('Session data at logout:', req.session); // Debug line
+
   try {
-    const accessToken = req.session.accessToken; // Retrieve from session
+    const accessToken = req.session?.accessToken; // Retrieve from session if it exists
 
     if (!accessToken) {
       return res.status(400).json({ error: "No access token available for logout" });
@@ -213,9 +235,10 @@ ourApp.post("/logout", async (req, res) => {
       AccessToken: accessToken
     };
 
+    // Sign out globally
     await cognitoIdentityServiceProvider.globalSignOut(params).promise();
 
-    // Clear session after logout
+    // Destroy the session after logout
     req.session.destroy((err) => {
       if (err) {
         console.error('Session destruction error:', err);

@@ -46,7 +46,7 @@ export default function Login({ onLogin }) {
         password
       });
 
-      const { authenticationResult } = response.data;
+      const { authenticationResult, role: userGroup } = response.data;
       const { accessToken: AccessToken, idToken: IdToken, refreshToken: RefreshToken } = authenticationResult;
 
       if (AccessToken && IdToken && RefreshToken) {
@@ -55,7 +55,12 @@ export default function Login({ onLogin }) {
           accessToken: AccessToken,
           idToken: IdToken,
           refreshToken: RefreshToken,
-          userGroup: response.data.role // Update this to match the role property from the response
+          role: userGroup // Update this to match the role property from the response
+        });
+
+        await axios.post("http://localhost:501/session-data", {
+          accessToken: AccessToken,
+          role: userGroup,
         });
 
         onLogin(); // Call parent function to handle login state change

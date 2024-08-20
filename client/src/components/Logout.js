@@ -1,16 +1,16 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import {AuthContext} from "./AuthContext";
+import { AuthContext } from "./AuthContext";
 
 const LogoutButton = () => {
     const navigate = useNavigate();
-    const { setUser, setUserGroup, setTokens, tokens } = useContext(AuthContext); // Access global state setters and tokens
+    const { setUser, setUserGroup, setTokens } = useContext(AuthContext); // Access global state setters
 
     const handleGlobalLogout = async () => {
         try {
-            // Send the access token to the logout endpoint
-            await axios.post('http://localhost:501/logout')
+            // Send the request to log out
+            await axios.post('http://localhost:501/logout');
 
             // Clear the context states
             setUser(null);
