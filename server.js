@@ -7,6 +7,8 @@ const session = require("express-session");
 const bodyParser = require('body-parser')
 const cors = require("cors");
 const AWS = require('aws-sdk')
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 
 const Surah = require("./Surah");
 const Mistakes = require("./mistakesFormatting");
@@ -26,6 +28,22 @@ ourApp.use(session({
   saveUninitialized: true,
   cookie: { secure: false }
 }));
+
+// Middleware to authenticate JWT cookies
+const authenticateJWT = (req, res, next) => {
+  const token = req.cookies['jwt'];
+  if (token) {
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+      if (err) return res.sendStatus(403);
+      req.user = user;
+      next();
+    });
+  } else {
+    res.sendStatus(401);
+  }
+};
+
+const JWT_SECRET = 'lo2';
 
 ourApp.use(cors())
 // first
@@ -194,17 +212,27 @@ ourApp.post("/signup", async (req, res) => {
   }
 });
 
-ourApp.post("/login", async (req, res) => {
+// Login endpoint
+ourApp.post('/login', async (req, res) => {
   const { username, password } = req.body;
-
   try {
     const data = await AuthUser(username, password);
-    console.log('data', data);
+    const { accessToken, userGroup } = data;
 
-    res.json(data);
+    // Create JWT with user data
+    const token = jwt.sign({ accessToken, userGroup }, JWT_SECRET, { expiresIn: '1h' });
+
+    // Set JWT as HTTP-only cookie
+    res.cookie('jwt', token, { httpOnly: true, secure: false, maxAge: 3600000 }); // 1 hour
+    res.json({ message: 'Login successful' });
   } catch (err) {
     res.status(500).json({ error: 'Authentication failed' });
   }
+});
+
+// Protected route
+ourApp.get('/protected', authenticateJWT, (req, res) => {
+  res.json({ message: 'This is a protected route', user: req.user });
 });
 
 ourApp.post("/session-data", (req, res) => {
@@ -221,37 +249,10 @@ ourApp.post("/session-data", (req, res) => {
 
 
 
-ourApp.post("/logout", async (req, res) => {
-  console.log('Session data at logout:', req.session); // Debug line
-
-  try {
-    const accessToken = req.session?.accessToken; // Retrieve from session if it exists
-
-    if (!accessToken) {
-      return res.status(400).json({ error: "No access token available for logout" });
-    }
-
-    const params = {
-      AccessToken: accessToken
-    };
-
-    // Sign out globally
-    await cognitoIdentityServiceProvider.globalSignOut(params).promise();
-
-    // Destroy the session after logout
-    req.session.destroy((err) => {
-      if (err) {
-        console.error('Session destruction error:', err);
-        return res.status(500).json({ error: "Failed to destroy session" });
-      }
-
-      res.json({ message: 'Successfully signed out globally' });
-    });
-
-  } catch (err) {
-    console.error('Global sign out error:', err);
-    res.status(500).json({ error: 'Global sign out failed' });
-  }
+// Logout endpoint
+ourApp.post('/logout', (req, res) => {
+  res.clearCookie('jwt');
+  res.json({ message: 'Logged out successfully' });
 });
 
 
