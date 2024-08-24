@@ -23,8 +23,4 @@ const handleGlobalLogout = async () => {
     }
 };
 
-const LogoutButton = () => (
-    <button onClick={handleGlobalLogout} className="btn">Logout</button>
-);
-
-export default LogoutButton;
+export default handleGlobalLogout;

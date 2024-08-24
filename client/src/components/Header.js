@@ -1,5 +1,7 @@
 import {ChevronFirst, Bell, MessageCircle} from "lucide-react";
-import Logout from "./Logout";
+import { GiExitDoor } from "react-icons/gi";
+import handleGlobalLogout from "./Logout";
+import React from "react";
 
 export default function Header() {
     return (
@@ -21,24 +23,24 @@ export default function Header() {
                 <button className="text-gray-600 hover:text-gray-900 mr-4">
                     <MessageCircle className="h-6 w-6"/>
                 </button>
-                <button className="text-gray-600 hover:text-gray-900 mr-4">
-                    <Logout></Logout>
-                </button>
                 <button className="text-gray-600 hover:text-gray-900 mr-4 relative">
                     <Bell className="h-6 w-6"/>
                     <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1 text-xs">3</span>
                 </button>
                 <div className="relative">
-                    <div className="rounded-full bg-gray-300 h-8 w-8 flex items-center justify-center">
+                    <div className="rounded-full bg-gray-300 h-8 w-8 flex mr-4 items-center justify-center">
                         <img
-                            src="https://ui-avatars.com/api/?background=7f9cf5&color=ffffff&bold=true&name=User"
-                            alt="Profile"
-                            className="rounded-full h-6 w-6"
+                          src="https://ui-avatars.com/api/?background=7f9cf5&color=ffffff&bold=true&name=User"
+                          alt="Profile"
+                          className="rounded-full h-6 w-6"
                         />
                     </div>
                     {/* Online indicator (optional) */}
                     {/* <span className="absolute bottom-0 right-0 bg-green-500 rounded-full h-2 w-2"></span> */}
                 </div>
+                <button onClick={handleGlobalLogout} className="text-gray-600 hover:text-gray-900 px-">
+                    <GiExitDoor className="h-6 w-6"/>
+                </button>
             </div>
         </header>
     );

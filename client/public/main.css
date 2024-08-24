@@ -68,7 +68,6 @@ main {
 .ayah-controls {
     width: 50px;
     display: flex;
-    flex-direction: column;
     justify-content: center;
 }
 

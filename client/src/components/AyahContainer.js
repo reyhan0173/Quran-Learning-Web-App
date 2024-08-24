@@ -111,8 +111,11 @@ const AyahContainer = ({ studentId, courseId, ayahData }) => {
     };
 
     return (
-      <div className={`ayah-container ${isBookmarked ? "isBookmarked" : ""}`} data-url={current_posStr}>
-          <div className="ayah-controls">
+      <div
+          className={`ayah-container ${isBookmarked ? "isBookmarked" : ""}`}
+          data-url={current_posStr}
+      >
+          <div className="ayah-controls flex-col">
               <button
                 className="ayah-control-button"
                 data-loop={loopCount}

@@ -38,7 +38,7 @@ const QuranExplorer = () => (
     <AudioRecorder />
     <AudioPlayer />
     <Approve studentId={1111115} courseId={123} startPos={"108:1"} endPos={"110:3"} />
-    <Assign studentId={1111115} courseId={123} startPos={"108:1"} endPos={"110:3"} />
+    <Assign studentId={1111115} courseId={123} />
   </AudioPlayerProvider>
 );
 

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AyahContainer from "./AyahContainer";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 const AyahList = ({ studentId, courseId, startPos, endPos }) => {
     const [ayahs, setAyahs] = useState([]);
@@ -46,7 +48,11 @@ const AyahList = ({ studentId, courseId, startPos, endPos }) => {
 
     console.log(`ayahs=${JSON.stringify(ayahs)}`);
 
-    if (loading) return <p>Loading...</p>; // Render loading state
+    if (loading) return (
+      <div className="flex justify-center items-center h-full">
+          <FontAwesomeIcon icon={faSpinner} spin size="2x" />
+      </div>
+    ); // Render loading spinner
 
     if (error) return <p>{error}</p>; // Render error state
 

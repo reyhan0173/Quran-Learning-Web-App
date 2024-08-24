@@ -32,7 +32,6 @@ export const removeMistake = async (studentId, courseId, current_posStr, selecte
   }
 };
 
-
 export const addMistake = async (studentId, courseId, current_posStr, selectedText, start_idx, end_idx) => {
 
   console.log(`${studentId}||${courseId}||${current_posStr}||${selectedText}||${start_idx}||${end_idx}`);
@@ -65,43 +64,56 @@ export const addMistake = async (studentId, courseId, current_posStr, selectedTe
   }
 };
 
+
 const handleUniversalAddMistake = async () => {
+  console.log("handleUniversalAddMistake clicked");
   const { text, parentElement, current_posStr } = getSelectedText();
-  console.log(text, parentElement);
+
+  const addMistakeButtonElement = parentElement.querySelector('.ayah-controls').querySelector('.ayah-add-mistake-button');
+  console.log(text, addMistakeButtonElement);
   if (!text || !parentElement) return;
 
-  const verse = parentElement.querySelector('.ayah').textContent;
+  addMistakeButtonElement.click();
 
-  const studentId = 1111115; // Replace with actual studentId if needed
-  const courseId = 123; // Replace with actual courseId if needed
-
-  if (current_posStr && verse) {
-    const start_idx = verse.indexOf(text);
-    const end_idx = start_idx + text.length;
-    await addMistake(studentId, courseId, current_posStr, text, start_idx, end_idx);
-  }
+  // old Method
+  // const verse = parentElement.querySelector('.ayah').textContent;
+  //
+  // const studentId = 1111115; // Replace with actual studentId if needed
+  // const courseId = 123; // Replace with actual courseId if needed
+  //
+  // if (current_posStr && verse) {
+  //   const start_idx = verse.indexOf(text);
+  //   const end_idx = start_idx + text.length;
+  //   await addMistake(studentId, courseId, current_posStr, text, start_idx, end_idx);
+  // }
 };
 
 const handleUniversalRemoveMistake = async () => {
+  console.log("handleUniversalRemoveMistake clicked");
   const { text, parentElement, current_posStr } = getSelectedText();
+
+  const removeMistakeButtonElement = parentElement.querySelector('.ayah-controls').querySelector('.ayah-remove-mistake-button');
   console.log(text, parentElement);
   if (!text || !parentElement) return;
 
-  const verse = parentElement.querySelector('.ayah').textContent;
+  removeMistakeButtonElement.click()
 
-  const studentId = 1111115; // Replace with actual studentId if needed
-  const courseId = 123; // Replace with actual courseId if needed
-
-  if (current_posStr && verse) {
-    const start_idx = verse.indexOf(text);
-    const end_idx = start_idx + text.length;
-    await removeMistake(studentId, courseId, current_posStr, text, start_idx, end_idx);
-  }
+  // old Method
+  // const verse = parentElement.querySelector('.ayah').textContent;
+  //
+  // const studentId = 1111115; // Replace with actual studentId if needed
+  // const courseId = 123; // Replace with actual courseId if needed
+  //
+  // if (current_posStr && verse) {
+  //   const start_idx = verse.indexOf(text);
+  //   const end_idx = start_idx + text.length;
+  //   await removeMistake(studentId, courseId, current_posStr, text, start_idx, end_idx);
+  // }
 };
 
 export default function MistakeButtons() {
   return (
-    <div className="ayah-controls flex-row">
+    <div className="ayah-controls flex flex-row">
       <button
         className="ayah-add-mistake-button"
         onClick={() => handleUniversalAddMistake()}

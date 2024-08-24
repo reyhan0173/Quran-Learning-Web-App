@@ -1,3 +1,4 @@
+require('dotenv').config();
 const PORT_NUMBER = 501;
 
 const express = require("express");
@@ -16,15 +17,14 @@ ourApp.use(express.json());
 ourApp.use(express.urlencoded({ extended: false }));
 ourApp.use(express.static("public"));
 ourApp.use(cors())
-// first
-// second
-ourApp.set("view engine", "ejs"); // Set EJS as the template engine
+
+ourApp.set("view engine", "ejs");
 
 AWS.config.update({
   region: 'us-east-2',
   credentials: {
-    accessKeyId:'',
-    secretAccessKey:''
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   }
 });
 
