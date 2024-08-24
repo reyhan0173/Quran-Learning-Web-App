@@ -139,7 +139,6 @@ export const removeMistake = async (studentId, courseId, current_posStr, setMist
     }
 
     setMistakes(prevMistakes => prevMistakes.filter(index => !mistakeIndexes.includes(index)));
-    alert("Mistake removed successfully");
   } catch (error) {
     console.error("Error removing mistake:", error);
   }

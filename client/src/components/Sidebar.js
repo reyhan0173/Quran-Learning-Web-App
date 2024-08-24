@@ -10,7 +10,7 @@ export default function Sidebar({ children }) {
   return (
       <div className="relative sidebar-section">
         <aside
-            className={`sidebar fixed top-15 left-0 h-screen z-50 bg-white shadow-lg transition-all ${
+            className={`sidebar fixed top-15 left-0 h-screen z-40 bg-white shadow-lg transition-all ${
                 expanded ? "w-1/5" : "w-16"
             }`}
         >
@@ -40,7 +40,7 @@ export default function Sidebar({ children }) {
         {/* Conditional Overlay */}
         {expanded && (
             <div
-                className="fixed inset-0 z-40 bg-black opacity-50"
+                className="fixed inset-0 z-30 bg-black opacity-50"
                 onClick={() => setExpanded(false)}
             ></div>
         )}
