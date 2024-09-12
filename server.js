@@ -22,32 +22,14 @@ ourApp.use(express.json());
 ourApp.use(express.urlencoded({ extended: false }));
 ourApp.use(express.static("public"));
 ourApp.use(bodyParser.json());
-ourApp.use(session({
-  secret: 'lo2',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false }
-}));
-
-// Middleware to authenticate JWT cookies
-const authenticateJWT = (req, res, next) => {
-  const token = req.cookies['jwt'];
-  if (token) {
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-      if (err) return res.sendStatus(403);
-      req.user = user;
-      next();
-    });
-  } else {
-    res.sendStatus(401);
-  }
-};
 
 const JWT_SECRET = 'lo2';
 
-ourApp.use(cors())
-// first
-// second
+ourApp.use(cors({
+  origin: 'http://localhost:3001', // Update this to your frontend's URL
+  credentials: true // Allow credentials (cookies) to be sent
+}));
+
 ourApp.set("view engine", "ejs"); // Set EJS as the template engine
 
 AWS.config.update({
@@ -170,20 +152,66 @@ async function AuthUser(username, password) {
     const groupData = await cognitoIdentityServiceProvider.adminListGroupsForUser(groupParams).promise();
     const group = groupData.Groups.map(group => group.GroupName);
 
-    // Include role in the JWT token payload
-    const payload = {
+    return {
       accessToken: authData.AuthenticationResult.AccessToken,
-      refreshToken: authData.AuthenticationResult.RefreshToken,
       idToken: authData.AuthenticationResult.IdToken,
-      role: group[0]  // Include the user's role in the token payload
+      refreshToken: authData.AuthenticationResult.RefreshToken,
+      role: group[0]  // Include the user's role in the response
     };
-
-    return { authenticationResult: payload };
   } catch (err) {
     console.error('Authentication and group retrieval error:', err);
     throw err;
   }
 }
+
+// Login endpoint
+ourApp.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const data = await AuthUser(username, password); // Function to authenticate with Cognito
+
+    const { accessToken, refreshToken, idToken, role } = data;
+
+    // Sign JWT for access token (optional if you want a signed token)
+    const tokenPayload = { accessToken, role };
+    const signedAccessToken = jwt.sign(tokenPayload, "test", { expiresIn: '1h' });
+
+    // Set cookies for session management (HTTP-only and secure in production)
+    res.cookie('authToken', signedAccessToken, {
+      httpOnly: true,
+      secure: false, // Secure in production
+      maxAge: 3600000 // 1 hour
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: false, // Secure in production
+      maxAge: 7 * 24 * 3600000 // 1 week (or longer)
+    });
+
+    // Respond with success
+    res.json({ message: 'Login successful', role });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Authentication failed' });
+  }
+});
+
+// Logout endpoint
+ourApp.post("/logout", async (req, res) => {
+  try {
+    // Clear cookies
+    res.clearCookie('authToken');
+    res.clearCookie('refreshToken');
+
+    // Optionally, you can add Cognito global sign out logic here if needed
+    res.json({ message: 'Logout successful' });
+  } catch (err) {
+    console.error('Logout error:', err);
+    res.status(500).json({ error: 'Logout failed' });
+  }
+});
 
 
 ourApp.post("/signup", async (req, res) => {
@@ -211,51 +239,6 @@ ourApp.post("/signup", async (req, res) => {
     res.status(500).send('Sign up error: ' + err.message);
   }
 });
-
-// Login endpoint
-ourApp.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-  try {
-    const data = await AuthUser(username, password);
-    const { accessToken, userGroup } = data;
-
-    // Create JWT with user data
-    const token = jwt.sign({ accessToken, userGroup }, JWT_SECRET, { expiresIn: '1h' });
-
-    // Set JWT as HTTP-only cookie
-    res.cookie('jwt', token, { httpOnly: true, secure: false, maxAge: 3600000 }); // 1 hour
-    res.json({ message: 'Login successful' });
-  } catch (err) {
-    res.status(500).json({ error: 'Authentication failed' });
-  }
-});
-
-// Protected route
-ourApp.get('/protected', authenticateJWT, (req, res) => {
-  res.json({ message: 'This is a protected route', user: req.user });
-});
-
-ourApp.post("/session-data", (req, res) => {
-  const { accessToken, userGroup } = req.body;
-
-  console.log('Setting session data:', { accessToken, userGroup }); // Debug line
-
-  // Set the session data
-  req.session.accessToken = accessToken;
-  req.session.userGroup = userGroup;
-
-  res.json({ message: 'Session set successfully' });
-});
-
-
-
-// Logout endpoint
-ourApp.post('/logout', (req, res) => {
-  res.clearCookie('jwt');
-  res.json({ message: 'Logged out successfully' });
-});
-
-
 
 ourApp.post("/fetchAyahs", async (req, res) => {
   try {

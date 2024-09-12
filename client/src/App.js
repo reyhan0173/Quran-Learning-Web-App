@@ -47,9 +47,7 @@ const QuranExplorer = () => (
 
 const App = () => {
     return (
-        <AuthProvider> {/* Wrap with AuthProvider */}
-            <Router>
-                <div className="App">
+        <div className="App">
                     <Header />
                     <div className="App-body">
                         <Sidebar>
@@ -72,9 +70,7 @@ const App = () => {
                             </Routes>
                         </main>
                     </div>
-                </div>
-            </Router>
-        </AuthProvider>
+        </div>
     );
 };
 

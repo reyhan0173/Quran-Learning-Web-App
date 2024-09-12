@@ -1,82 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import './index.css';
 import App from './App';
 import Login from './components/Login';
-import AWS from 'aws-sdk';
-import HomeworkCard from "./components/HomeworkCard";
-
-// AWS Cognito configuration
-AWS.config.region = 'us-east-2'; // Replace with your region
-const cognito = new AWS.CognitoIdentityServiceProvider();
-
-function loadCSS(filename) {
-  const link = document.createElement('link');
-  link.href = `${process.env.PUBLIC_URL}/${filename}`;
-  link.rel = 'stylesheet';
-  link.type = 'text/css';
-  link.className = 'dynamic-css'; // Add a class name to identify it later
-  document.head.appendChild(link);
-}
-
-function unloadCSS(filename) {
-  const links = document.getElementsByClassName('dynamic-css');
-  for (let i = 0; i < links.length; i++) {
-    if (links[i].href.includes(filename)) {
-      document.head.removeChild(links[i]);
-    }
-  }
-}
+import { AuthProvider } from './components/AuthContext';
 
 function Main() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userGroup, setUserGroup] = useState('');
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    // Check if user is already logged in
-    const accessToken = localStorage.getItem('accessToken');
-    if (accessToken) {
-      cognito.getUser({ AccessToken: accessToken }, (err, data) => {
-        if (err) {
-          console.error(err);
-          setIsLoggedIn(false);
-        } else {
-          // Example: Assume userGroup is stored in localStorage after successful login
-          const storedUserGroup = localStorage.getItem('userGroup');
-          setUserGroup(storedUserGroup || '');
-
-          setIsLoggedIn(true);
-        }
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      unloadCSS('Login.css');
-      loadCSS('main.css');
-    } else {
-      unloadCSS('main.css');
-      loadCSS('Login.css');
-    }
-
-    // Cleanup function to remove dynamic CSS on component unmount
-    return () => {
-      unloadCSS('Login.css');
-      unloadCSS('main.css');
+  React.useEffect(() => {
+    // Function to check if the user is logged in based on cookies
+    const checkLoginStatus = () => {
+      const authToken = document.cookie.split('; ').find(row => row.startsWith('authToken='));
+      if (authToken) {
+        console.log('Auth token found, navigating to App.');
+        navigate('/'); // Redirect to the root or dashboard page
+      } else {
+        console.log('No auth token found, navigating to Login.');
+        navigate('/login'); // Redirect to login if not authenticated
+      }
     };
-  }, [isLoggedIn]);
 
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-  };
+    checkLoginStatus();
+  }, [navigate]);
 
   return (
-      <React.StrictMode>
-        {isLoggedIn ? <App /> : <Login onLogin={handleLogin} />}
-      </React.StrictMode>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<App />} />
+      </Routes>
   );
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<Main />);
+root.render(
+    <Router>
+      <AuthProvider>
+        <Main />
+      </AuthProvider>
+    </Router>
+);
