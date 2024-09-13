@@ -22,11 +22,12 @@ ourApp.use(express.json());
 ourApp.use(express.urlencoded({ extended: false }));
 ourApp.use(express.static("public"));
 ourApp.use(bodyParser.json());
+ourApp.use(cookieParser());
 
 const JWT_SECRET = 'lo2';
 
 ourApp.use(cors({
-  origin: 'http://localhost:3001', // Update this to your frontend's URL
+  origin: 'http://localhost:3000', // Update this to your frontend's URL
   credentials: true // Allow credentials (cookies) to be sent
 }));
 
@@ -181,12 +182,14 @@ ourApp.post("/login", async (req, res) => {
     res.cookie('authToken', signedAccessToken, {
       httpOnly: true,
       secure: false, // Secure in production
+      path: '/',
       maxAge: 3600000 // 1 hour
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: false, // Secure in production
+      path: '/',
       maxAge: 7 * 24 * 3600000 // 1 week (or longer)
     });
 
@@ -201,15 +204,43 @@ ourApp.post("/login", async (req, res) => {
 // Logout endpoint
 ourApp.post("/logout", async (req, res) => {
   try {
+    console.log('this is happeneing')
     // Clear cookies
-    res.clearCookie('authToken');
-    res.clearCookie('refreshToken');
+    res.clearCookie('authToken', { path: '/' });
+    res.clearCookie('refreshToken', { path: '/' });
+
+    res.setHeader('Set-Cookie', 'authToken=; Max-Age=0; path=/');
+    res.setHeader('Set-Cookie', 'refreshToken=; Max-Age=0; path=/');
+
+    console.log('done happening')
 
     // Optionally, you can add Cognito global sign out logic here if needed
     res.json({ message: 'Logout successful' });
   } catch (err) {
     console.error('Logout error:', err);
     res.status(500).json({ error: 'Logout failed' });
+  }
+});
+
+// Middleware to check authentication status
+ourApp.get('/check-auth-status', (req, res) => {
+  // Get token from cookies
+  const token = req.cookies.authToken;
+
+  // If no token found, return not authenticated
+  if (!token) {
+    return res.status(401).json({ message: 'Not authenticated' });
+  }
+
+  try {
+    // Verify the token using the secret key
+    const decoded = jwt.verify(token, 'test');
+
+    // If token is valid, send back the user's role (or other user info)
+    return res.json({ role: decoded.role });
+  } catch (err) {
+    // If token is invalid, return 401 Unauthorized
+    return res.status(401).json({ message: 'Invalid token' });
   }
 });
 

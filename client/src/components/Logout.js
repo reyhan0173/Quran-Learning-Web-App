@@ -12,6 +12,7 @@ const LogoutButton = () => {
             await axios.post('http://localhost:501/logout');
 
             // Clear user info from context
+            console.log('logged out front end')
             logout();
 
             // Redirect to login page

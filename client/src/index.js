@@ -4,40 +4,34 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import './index.css';
 import App from './App';
 import Login from './components/Login';
-import { AuthProvider } from './components/AuthContext';
+import { AuthProvider, useAuth } from './components/AuthContext';
 
 function Main() {
-  const navigate = useNavigate();
+    const { authData } = useAuth(); // Access authData from context
+    const navigate = useNavigate();
 
-  React.useEffect(() => {
-    // Function to check if the user is logged in based on cookies
-    const checkLoginStatus = () => {
-      const authToken = document.cookie.split('; ').find(row => row.startsWith('authToken='));
-      if (authToken) {
-        console.log('Auth token found, navigating to App.');
-        navigate('/'); // Redirect to the root or dashboard page
-      } else {
-        console.log('No auth token found, navigating to Login.');
-        navigate('/login'); // Redirect to login if not authenticated
-      }
-    };
+    React.useEffect(() => {
+        // Redirect based on authentication status
+        if (authData.isAuthenticated) {
+            navigate('/'); // Redirect to dashboard if authenticated
+        } else {
+            navigate('/login'); // Redirect to login if not authenticated
+        }
+    }, [authData, navigate]);
 
-    checkLoginStatus();
-  }, [navigate]);
-
-  return (
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<App />} />
-      </Routes>
-  );
+    return (
+        <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<App />} />
+        </Routes>
+    );
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <Router>
-      <AuthProvider>
-        <Main />
-      </AuthProvider>
+        <AuthProvider>
+            <Main />
+        </AuthProvider>
     </Router>
 );

@@ -49,9 +49,9 @@ export default function Login({ onLogin }) {
 
       // Make sure role is received and valid
       if (role) {
-        login({ role }); // Call login from context
+        login({ role }); // Call login from context to update auth state
         console.log('Login successful, role:', role);
-        // Redirect or handle post-login logic
+        // Optionally navigate to another page based on role or login success
       } else {
         console.error('No role returned in response');
       }
