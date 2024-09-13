@@ -16,7 +16,6 @@ import HomeworkCard from "./components/HomeworkCard";
 import Table from "./components/Table";
 import ClassPlacement from "./components/ClassPlacement";
 import MistakeButtons from "./components/MistakeButtons";
-import { MistakesProvider } from './MistakesContext';
 
 const Tables = () => (
   <Table />

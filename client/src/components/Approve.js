@@ -2,6 +2,57 @@ import React, { useState } from "react";
 import AudioPlayer from "./AudioPlayer";
 import { surahList } from '../functions/surahListFunction';
 
+const homeworkApprove = async (studentId, courseId, performance, notes) => {
+  try {
+    const response = await fetch("http://localhost:501/homeworkApprove", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ studentId, courseId, performance, notes }),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to add mistake");
+    }
+  } catch (error) {
+    console.error("Error adding mistake:", error);
+  }
+};
+
+const homeworkAdjust = async (studentId, courseId) => {
+  try {
+    const response = await fetch("http://localhost:501/homeworkAdjust", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ studentId, courseId }),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to add mistake");
+    }
+  } catch (error) {
+    console.error("Error adding mistake:", error);
+  }
+};
+
+const homeworkDecline = async (studentId, courseId, performance, notes) => {
+  try {
+    const response = await fetch("http://localhost:501/homeworkDecline", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ studentId, courseId, performance, notes }),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to add mistake");
+    }
+  } catch (error) {
+    console.error("Error adding mistake:", error);
+  }
+};
+
 export default function Approve({ studentId, courseId, startPos, endPos }) {
   const [isApproveDrawerOpen, setIsApproveDrawerOpen] = useState(false);
   const [isError, setIsError] = useState(false);
@@ -20,7 +71,7 @@ export default function Approve({ studentId, courseId, startPos, endPos }) {
   };
 
   // Handle button selection
-  const handleActionSelection = (action) => {
+  const handleActionSelection = async (action) => {
     setSelectedAction(action);
   };
 
@@ -35,7 +86,7 @@ export default function Approve({ studentId, courseId, startPos, endPos }) {
   };
 
   // Save function
-  const handleSave = () => {
+  const handleSave = async () => {
     const data = {
       studentId,
       courseId,
@@ -47,6 +98,18 @@ export default function Approve({ studentId, courseId, startPos, endPos }) {
     if (!(studentId && courseId && startSurahNumber && startAyahNumber && endSurahNumber && endAyahNumber && performance)) {
       setIsError(true);
       return;
+    }
+
+    if (selectedAction === 'approve') {
+      await homeworkApprove(studentId, courseId, performance, notes);
+    }
+
+    if (selectedAction === 'reassign') {
+      await homeworkAdjust(studentId, courseId);
+    }
+
+    if (selectedAction === 'decline') {
+      await homeworkDecline(studentId, courseId, performance, notes);
     }
 
     // Handle assignment logic here, e.g., send to an API

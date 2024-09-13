@@ -8,7 +8,8 @@ const AWS = require('aws-sdk')
 const Surah = require("./Surah");
 const Mistakes = require("./mistakesFormatting");
 const Bookmark = require("./bookmarkFormatting");
-const AyahInfo = require("./AyahInfo"); // Import the AyahInfo model
+const AyahInfo = require("./Tables/AyahInfoTable");
+const HomeworkAssign = require("./homeworkAssign");
 
 const ourApp = express();
 
@@ -198,8 +199,6 @@ ourApp.post("/logout", async (req, res) => {
   }
 });
 
-
-
 ourApp.post("/fetchAyahs", async (req, res) => {
   try {
     const { studentId, courseId, startPos, endPos } = req.body;
@@ -284,6 +283,56 @@ ourApp.post("/removeBookmark", async (req, res) => {
     res.status(500).send("Failed to remove bookmark");
   }
 });
+
+
+ourApp.post("/homeworkAssign", async (req, res) => {
+  console.log(req.body);
+  try {
+    // Implement the logic to handle adding mistakes (e.g., save to database)
+    await HomeworkAssign.homeworkAssign(req.body);
+    res.status(200).send("Homework Assigned successfully");
+  } catch (error) {
+    console.error("Error assigning homework:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+ourApp.post("/homeworkApprove", async (req, res) => {
+  console.log(req.body);
+  try {
+    // Implement the logic to handle adding mistakes (e.g., save to database)
+    await HomeworkAssign.homeworkApprove(req.body);
+    res.status(200).send("Homework Assigned successfully");
+  } catch (error) {
+    console.error("Error assigning homework:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+ourApp.post("/homeworkAdjust", async (req, res) => {
+  console.log(req.body);
+  try {
+    // Implement the logic to handle adding mistakes (e.g., save to database)
+    await HomeworkAssign.homeworkAdjust(req.body);
+    res.status(200).send("Homework Assigned successfully");
+  } catch (error) {
+    console.error("Error assigning homework:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+ourApp.post("/homeworkDecline", async (req, res) => {
+  console.log(req.body);
+  try {
+    // Implement the logic to handle adding mistakes (e.g., save to database)
+    await HomeworkAssign.homeworkDecline(req.body);
+    res.status(200).send("Homework Assigned successfully");
+  } catch (error) {
+    console.error("Error assigning homework:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 
 ourApp.post("/addMistake", async (req, res) => {
   try {

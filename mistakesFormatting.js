@@ -1,4 +1,4 @@
-const AyahFormatting = require('./ayahFormattingTable');
+const AyahFormatting = require('./Tables/ayahFormattingTable');
 
 async function hasMistake(studentId, courseId, surah_ayah){
     let [surah, verse] = surah_ayah.split(":").map(Number);

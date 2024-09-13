@@ -1,7 +1,25 @@
 import React, { useState } from "react";
 import { surahList } from '../functions/surahListFunction';
 
-export default function Assign({ studentId, courseId }) {
+const assign = async (assignmentData) => {
+  console.log(assignmentData);
+  try {
+    const response = await fetch("http://localhost:501/homeworkAssign", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ assignmentData }),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to add mistake");
+    }
+  } catch (error) {
+    console.error("Error adding mistake:", error);
+  }
+};
+
+export default function ({ studentId, courseId }) {
   const [isAssignDrawerOpen, setIsAssignDrawerOpen] = useState(false);
   const [isError, setIsError] = useState(false);
 
@@ -10,7 +28,7 @@ export default function Assign({ studentId, courseId }) {
   const [toSurahNumber, setToSurahNumber] = useState(0);
   const [toAyahNumber, setToAyahNumber] = useState(0);
 
-  const [listeningCount, setListeningCount] = useState(0);
+  const [listeningGoal, setListeningGoal] = useState(0);
   const [listeningFormat, setListeningFormat] = useState("each ayah");
   const [qariName, setQariName] = useState("Shaykh A");
   const [qariSpeed, setQariSpeed] = useState(1);
@@ -22,7 +40,7 @@ export default function Assign({ studentId, courseId }) {
       setIsAssignDrawerOpen(!isAssignDrawerOpen);
   };
 
-  const handleAssign = () => {
+  const handleAssign = async () => {
     const assignmentData = {
       studentId,
       courseId,
@@ -32,7 +50,7 @@ export default function Assign({ studentId, courseId }) {
       toSurahNumber,
       toAyahNumber,
 
-      listeningCount,
+      listeningGoal,
       listeningFormat,
       qariName,
       qariSpeed,
@@ -42,15 +60,14 @@ export default function Assign({ studentId, courseId }) {
 
     if (!(studentId && courseId &&
       fromSurahNumber && fromAyahNumber && toSurahNumber && toAyahNumber &&
-      listeningCount && listeningFormat && qariName && qariSpeed
+      listeningGoal && listeningFormat && qariName && qariSpeed
     )) {
       setIsError(true);
       return 0;
     }
 
-    // Handle assignment logic here, e.g., send to an API
     setIsError(false);
-    console.log("Assignment Data:", assignmentData);
+    await assign(assignmentData);
     return 1;
   };
 
@@ -169,8 +186,8 @@ export default function Assign({ studentId, courseId }) {
               <input
                 type="number"
                 className="w-16 p-1 border rounded"
-                value={listeningCount}
-                onChange={(e) => setListeningCount(Number(e.target.value))}
+                value={listeningGoal}
+                onChange={(e) => setListeningGoal(Number(e.target.value))}
                 min="0"
               />
               <select

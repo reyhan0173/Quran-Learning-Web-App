@@ -1,5 +1,5 @@
 // Use `Quran_Explorer`.`ayahFormatting` table
-const AyahFormatting = require('./ayahFormattingTable');
+const AyahFormatting = require('./Tables/ayahFormattingTable');
 
 async function addBookmark(studentId, courseId, surahNumber, ayahNumber) {
     try {
