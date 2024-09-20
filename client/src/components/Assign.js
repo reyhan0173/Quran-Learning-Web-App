@@ -20,6 +20,7 @@ const assign = async (assignmentData) => {
 };
 
 export default function ({ studentId, courseId }) {
+  const [assignText, setAssignText] = useState("Assign");
   const [isAssignDrawerOpen, setIsAssignDrawerOpen] = useState(false);
   const [isError, setIsError] = useState(false);
 
@@ -68,6 +69,7 @@ export default function ({ studentId, courseId }) {
 
     setIsError(false);
     await assign(assignmentData);
+    setAssignText("Re-assign");
     return 1;
   };
 

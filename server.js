@@ -117,6 +117,11 @@ async function getAyahData(studentId, courseId, startPos, endPos) {
   return await Promise.all(promises);
 }
 
+async function getLatestHomework(studentId, courseId) {
+  return await HomeworkAssign.getLatestHomework(studentId, courseId);
+}
+
+
 async function AuthUser(username, password) {
   const authParams = {
     AuthFlow: 'USER_PASSWORD_AUTH',
@@ -201,9 +206,12 @@ ourApp.post("/logout", async (req, res) => {
 
 ourApp.post("/fetchAyahs", async (req, res) => {
   try {
-    const { studentId, courseId, startPos, endPos } = req.body;
+    const { studentId, courseId } = req.body;
     User.studentId = studentId;
     User.courseId = courseId;
+
+    const [startPos, endPos] = await getLatestHomework(studentId, courseId);
+    console.log(`DEBUG 1021: ${startPos}, ${endPos}`);
 
     if (!startPos || !endPos) {
       return res.status(400).json({ error: "startPos and endPos are required" });

@@ -3,10 +3,13 @@ import AyahContainer from "./AyahContainer";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
-const AyahList = ({ studentId, courseId, startPos, endPos }) => {
+const AyahList = ({ studentId, courseId }) => {
     const [ayahs, setAyahs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [startPos, setStartPos] = useState(0);
+    const [endPos, setEndPos] = useState(0);
+
 
     useEffect(() => {
         const fetchAyahData = async () => {
@@ -17,7 +20,7 @@ const AyahList = ({ studentId, courseId, startPos, endPos }) => {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ studentId, courseId, startPos, endPos })
+                    body: JSON.stringify({ studentId, courseId })
                 });
                 console.log("Response status:", response.status); // Log response status
 
