@@ -22,7 +22,7 @@ ourApp.use(express.json());
 ourApp.use(express.urlencoded({ extended: false }));
 ourApp.use(express.static("public"));
 ourApp.use(bodyParser.json());
-ourApp.use(cookieParser());
+ourApp.use(cookieParser('lol'));
 
 const JWT_SECRET = 'lo2';
 
@@ -193,6 +193,14 @@ ourApp.post("/login", async (req, res) => {
       maxAge: 7 * 24 * 3600000 // 1 week (or longer)
     });
 
+    // Set cookies for session management (HTTP-only and secure in production)
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: false, // Secure in production
+      path: '/',
+      maxAge: 3600000 // 1 hour
+    });
+
     // Respond with success
     res.json({ message: 'Login successful', role });
   } catch (err) {
@@ -204,17 +212,31 @@ ourApp.post("/login", async (req, res) => {
 // Logout endpoint
 ourApp.post("/logout", async (req, res) => {
   try {
-    console.log('this is happeneing')
+    // Retrieve access token from cookies
+    const accessToken = req.cookies.accessToken;
+
+    if (!accessToken) {
+      return res.status(400).json({ error: 'No access token found' });
+    }
+
+    // Perform global sign out with Cognito
+    const params = {
+      AccessToken: accessToken
+    };
+
+    try {
+      await cognitoIdentityServiceProvider.globalSignOut(params).promise();
+      console.log('Global sign-out successful');
+    } catch (error) {
+      console.error('Error during global sign-out:', error);
+      return res.status(500).json({ error: 'Global sign-out failed' });
+    }
+
     // Clear cookies
     res.clearCookie('authToken', { path: '/' });
     res.clearCookie('refreshToken', { path: '/' });
+    res.clearCookie('accessToken', { path: '/' });
 
-    res.setHeader('Set-Cookie', 'authToken=; Max-Age=0; path=/');
-    res.setHeader('Set-Cookie', 'refreshToken=; Max-Age=0; path=/');
-
-    console.log('done happening')
-
-    // Optionally, you can add Cognito global sign out logic here if needed
     res.json({ message: 'Logout successful' });
   } catch (err) {
     console.error('Logout error:', err);
