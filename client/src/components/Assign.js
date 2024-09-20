@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { surahList } from '../functions/surahListFunction';
 
 const assign = async (assignmentData) => {
@@ -19,8 +19,43 @@ const assign = async (assignmentData) => {
   }
 };
 
+const getAssignedText = async (studentId, courseId) => {
+
+  try {
+    const response = await fetch("http://localhost:501/getApprovalStatus", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ studentId, courseId }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to add mistake");
+    }
+
+    const data = await response.json();
+    console.log(data);
+    console.log(data.approvalStatus);
+    return data.approvalStatus;
+
+  } catch (error) {
+    console.error("Error adding mistake:", error);
+  }
+};
+
 export default function ({ studentId, courseId }) {
-  const [assignText, setAssignText] = useState("Assign");
+  const [assignText, setAssignText] = useState("");
+
+  useEffect(() => {
+    const fetchAssignedText = async () => {
+      const approvalStatus = await getAssignedText(studentId, courseId);
+      setAssignText(approvalStatus ? "Re-Assign" : "Assign");
+    };
+
+    fetchAssignedText();
+  }, [studentId, courseId]); // Re-run effect if studentId or courseId changes
+
   const [isAssignDrawerOpen, setIsAssignDrawerOpen] = useState(false);
   const [isError, setIsError] = useState(false);
 
@@ -81,7 +116,7 @@ export default function ({ studentId, courseId }) {
         className={`BtnHomeworkFunc fixed top-28 z-30 right-0 p-3 bg-indigo-500 text-white rounded-l-lg cursor-pointer transition-all duration-500 ease-in-out transform ${isAssignDrawerOpen ? 'translate-x-[-20rem]' : ''}`}
         onClick={toggleAssignDrawer}
       >
-        Assign
+        {assignText}
       </label>
 
       {/* Drawer */}

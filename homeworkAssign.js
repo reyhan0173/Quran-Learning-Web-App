@@ -6,7 +6,10 @@ const getLatestHomework = async (studentId, courseId) => {
     order: [['assignedOn', 'DESC']] // Orders by assignedOn, descending (most recent first)
   });
 
+  console.log(latestHomework);
+
   return [
+    `${latestHomework['dataValues']['approvedOn']}`,
     `${latestHomework['dataValues']['fromSurah']}:${latestHomework['dataValues']['fromSurah']}`,
     `${latestHomework['dataValues']['toSurah']}:${latestHomework['dataValues']['toAyah']}`
   ];

@@ -204,13 +204,31 @@ ourApp.post("/logout", async (req, res) => {
   }
 });
 
+ourApp.post("/getApprovalStatus", async (req, res) => {
+  try {
+    const { studentId, courseId } = req.body;
+
+    const [approvedOn, startPos, endPos] = await getLatestHomework(studentId, courseId);
+
+    if (!startPos || !endPos) {
+      return res.status(400).json({ error: "startPos and endPos are required" });
+    }
+
+    res.json({ approvalStatus: approvedOn == null ? "1" : "0" });
+  } catch (err) {
+    console.error("Error fetching ayahs:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
 ourApp.post("/fetchAyahs", async (req, res) => {
   try {
     const { studentId, courseId } = req.body;
     User.studentId = studentId;
     User.courseId = courseId;
 
-    const [startPos, endPos] = await getLatestHomework(studentId, courseId);
+    const [approvedOn, startPos, endPos] = await getLatestHomework(studentId, courseId);
     console.log(`DEBUG 1021: ${startPos}, ${endPos}`);
 
     if (!startPos || !endPos) {
