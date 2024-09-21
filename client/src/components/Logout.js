@@ -1,26 +1,33 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from './AuthContext'; // Assume AuthContext is set up
 
-const handleGlobalLogout = async () => {
-    const accessToken = localStorage.getItem('accessToken');
+const LogoutButton = () => {
+    const { logout } = useAuth();
+    const navigate = useNavigate();
 
-    if (accessToken) {
+    const handleLogout = async () => {
         try {
-            const response = await axios.post('http://localhost:501/logout', { accessToken });
-            console.log(response.data.message);
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('idToken');
-            localStorage.removeItem('refreshToken');
-            localStorage.removeItem('userGroup');
-            window.location.href = '/login'; // Redirect to login page
+            await axios.post('http://localhost:501/logout', {}, {withCredentials: true});
+
+            // Clear user info from context
+            console.log('logged out front end')
+            logout();
+
+            // Redirect to login page
+            navigate('/login');
         } catch (err) {
-            console.error('Global sign out error:', err);
-            alert('Global sign out error: ' + err.message);
+            console.error('Logout error:', err);
+            alert('Logout failed: ' + err.message);
         }
-    } else {
-        console.error('No access token found');
-        alert('No access token found');
-    }
+    };
+
+    return (
+        <button onClick={handleLogout}>
+            Logout
+        </button>
+    );
 };
 
-export default handleGlobalLogout;
+export default LogoutButton;

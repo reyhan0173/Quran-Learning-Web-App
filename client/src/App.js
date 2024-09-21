@@ -16,6 +16,12 @@ import HomeworkCard from "./components/HomeworkCard";
 import Table from "./components/Table";
 import ClassPlacement from "./components/ClassPlacement";
 import MistakeButtons from "./components/MistakeButtons";
+import { MistakesProvider } from './MistakesContext';
+import ProtectedRoute from "./components/ProtectedRoute";
+import Login from "./components/Login";
+import roleTest from "./components/RoleTest";
+import {AuthProvider} from "./components/AuthContext";
+import RoleTest from "./components/RoleTest";
 
 const Tables = () => (
   <Table />
@@ -43,33 +49,33 @@ const QuranExplorer = () => (
 );
 
 const App = () => {
-  return (
-    <Router>
-      <div className="App">
-        <Header />
-        <div className="App-body">
-          <Sidebar>
-            <SidebarItem to="/" icon={<LayoutDashboard size={40} />} text="Dashboard" alert />
-            <SidebarItem to="/analytics" icon={<BarChart2 size={40} />} text="Analytics" active />
-            <SidebarItem to="/homework-cards" icon={<BiChalkboard size={40} />} text="Homeword Cards" active />
-            <SidebarItem to="/quran-explorer" icon={<BiBook size={40} />} text="Quran Explorer" active />
-            <SidebarItem to="/tables" icon={<BiGroup size={40} />} text="Tables" active />
-            <SidebarItem to="/attendance" icon={<BiCalendar size={40} />} text="Attendance" active />
-            <SidebarItem to="/profile" icon={<BiMale size={40} />} text="Profile" active />
-          </Sidebar>
-          <main>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/quran-explorer" element={<QuranExplorer />} />
-              <Route path="/homework-cards" element={<HomeworkCards />} />
-              <Route path="/tables" element={<Tables />} />
-            </Routes>
-          </main>
+    return (
+        <div className="App">
+                    <Header />
+            <RoleTest/>
+                    <div className="App-body">
+                        <Sidebar>
+                            <SidebarItem to="/" icon={<LayoutDashboard size={40} />} text="Dashboard" alert />
+                            <SidebarItem to="/analytics" icon={<BarChart2 size={40} />} text="Analytics" active />
+                            <SidebarItem to="/homework-cards" icon={<BiChalkboard size={40} />} text="Homework Cards" active />
+                            <SidebarItem to="/quran-explorer" icon={<BiBook size={40} />} text="Quran Explorer" active />
+                            <SidebarItem to="/tables" icon={<BiGroup size={40} />} text="Tables" active />
+                            <SidebarItem to="/attendance" icon={<BiCalendar size={40} />} text="Attendance" active />
+                            <SidebarItem to="/profile" icon={<BiMale size={40} />} text="Profile" active />
+                        </Sidebar>
+                        <main>
+                            <Routes>
+                                <Route path="/" element={<Dashboard />} />
+                                <Route path="/analytics" element={<Analytics />} />
+                                <Route path="/quran-explorer" element={<ProtectedRoute element={<QuranExplorer />} allowedRoles={['Teachers']} />} />
+                                <Route path="/homework-cards" element={<ProtectedRoute element={<HomeworkCards />} allowedRoles={['Teachers']} />} />
+                                <Route path="/tables" element={<Tables />} />
+                                <Route path="/login" element={<Login />} />
+                            </Routes>
+                        </main>
+                    </div>
         </div>
-      </div>
-    </Router>
-  );
+    );
 };
 
 export default App;

@@ -1,15 +1,22 @@
 require('dotenv').config();
 const PORT_NUMBER = 501;
 
+require('dotenv').config();
+
 const express = require("express");
+const session = require("express-session");
+const bodyParser = require('body-parser')
 const cors = require("cors");
 const AWS = require('aws-sdk')
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 
 const Surah = require("./Surah");
 const Mistakes = require("./mistakesFormatting");
 const Bookmark = require("./bookmarkFormatting");
 const AyahInfo = require("./Tables/AyahInfoTable");
 const HomeworkAssign = require("./homeworkAssign");
+const authorizeRoles = require("./authorizeRoles");
 
 const ourApp = express();
 
@@ -17,9 +24,18 @@ const ourApp = express();
 ourApp.use(express.json());
 ourApp.use(express.urlencoded({ extended: false }));
 ourApp.use(express.static("public"));
-ourApp.use(cors())
 
-ourApp.set("view engine", "ejs");
+ourApp.use(bodyParser.json());
+ourApp.use(cookieParser('lol'));
+
+const JWT_SECRET = 'sample';
+
+ourApp.use(cors({
+  origin: 'http://localhost:3000', // Update this to your frontend's URL
+  credentials: true // Allow credentials (cookies) to be sent
+}));
+
+ourApp.set("view engine", "ejs"); // Set EJS as the template engine
 
 AWS.config.update({
   region: 'us-east-2',
@@ -138,18 +154,126 @@ async function AuthUser(username, password) {
   };
 
   try {
+    // Authenticate user
     const authData = await cognitoIdentityServiceProvider.initiateAuth(authParams).promise();
     console.log('User authenticated:', authData.AuthenticationResult);
 
+    // Get user group (role)
     const groupData = await cognitoIdentityServiceProvider.adminListGroupsForUser(groupParams).promise();
     const group = groupData.Groups.map(group => group.GroupName);
 
-    return { authenticationResult: authData.AuthenticationResult, group: group[0] };
+    return {
+      accessToken: authData.AuthenticationResult.AccessToken,
+      idToken: authData.AuthenticationResult.IdToken,
+      refreshToken: authData.AuthenticationResult.RefreshToken,
+      role: group[0]  // Include the user's role in the response
+    };
   } catch (err) {
     console.error('Authentication and group retrieval error:', err);
     throw err;
   }
 }
+
+// Login endpoint
+ourApp.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const data = await AuthUser(username, password); // Function to authenticate with Cognito
+
+    const { accessToken, refreshToken, idToken, role } = data;
+
+    // Sign JWT for access token (optional if you want a signed token)
+    const tokenPayload = { accessToken, role };
+    const signedAccessToken = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '1h' });
+
+    // Set cookies for session management (HTTP-only and secure in production)
+    res.cookie('authToken', signedAccessToken, {
+      httpOnly: true,
+      secure: false, // Secure in production
+      path: '/',
+      maxAge: 3600000 // 1 hour
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: false, // Secure in production
+      path: '/',
+      maxAge: 7 * 24 * 3600000 // 1 week (or longer)
+    });
+
+    // Set cookies for session management (HTTP-only and secure in production)
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: false, // Secure in production
+      path: '/',
+      maxAge: 3600000 // 1 hour
+    });
+
+    // Respond with success
+    res.json({ message: 'Login successful', role });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Authentication failed' });
+  }
+});
+
+// Logout endpoint
+ourApp.post("/logout", async (req, res) => {
+  try {
+    // Retrieve access token from cookies
+    const accessToken = req.cookies.accessToken;
+
+    if (!accessToken) {
+      return res.status(400).json({ error: 'No access token found' });
+    }
+
+    // Perform global sign out with Cognito
+    const params = {
+      AccessToken: accessToken
+    };
+
+    try {
+      await cognitoIdentityServiceProvider.globalSignOut(params).promise();
+      console.log('Global sign-out successful');
+    } catch (error) {
+      console.error('Error during global sign-out:', error);
+      return res.status(500).json({ error: 'Global sign-out failed' });
+    }
+
+    // Clear cookies
+    res.clearCookie('authToken', { path: '/' });
+    res.clearCookie('refreshToken', { path: '/' });
+    res.clearCookie('accessToken', { path: '/' });
+
+    res.json({ message: 'Logout successful' });
+  } catch (err) {
+    console.error('Logout error:', err);
+    res.status(500).json({ error: 'Logout failed' });
+  }
+});
+
+// Middleware to check authentication status
+ourApp.get('/check-auth-status', (req, res) => {
+  // Get token from cookies
+  const token = req.cookies.authToken;
+
+  // If no token found, return not authenticated
+  if (!token) {
+    return res.status(401).json({ message: 'Not authenticated' });
+  }
+
+  try {
+    // Verify the token using the secret key
+    const decoded = jwt.verify(token, 'test');
+
+    // If token is valid, send back the user's role (or other user info)
+    return res.json({ role: decoded.role });
+  } catch (err) {
+    // If token is invalid, return 401 Unauthorized
+    return res.status(401).json({ message: 'Invalid token' });
+  }
+});
 
 ourApp.post("/signup", async (req, res) => {
   const { firstName, lastName, phoneNumber, email, dateOfBirth, username, password } = req.body;
@@ -220,7 +344,6 @@ ourApp.post("/getApprovalStatus", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
 
 ourApp.post("/fetchAyahs", async (req, res) => {
   try {
@@ -377,6 +500,18 @@ ourApp.post("/addMistake", async (req, res) => {
 ourApp.post("/removeMistake", async (req, res) => {
   try {
     const { studentId, courseId, current_posStr, mistakeIndexes } = req.body;
+
+    // Extract the token from the request header
+    const token = req.headers.authorization.split(' ')[1];
+
+    // Verify the token and extract the payload
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET); // Replace process.env.JWT_SECRET with your actual secret
+
+    // Check if the user's role is "Teachers"
+    if (decodedToken.role !== 'Teachers') {
+      return res.status(403).send("Access Denied: You do not have the required permissions to perform this action.");
+    }
+
     let [surahNumber, ayahNumber] = current_posStr.split(":").map(Number);
 
     // Implement the logic to handle removing mistakes (e.g., update database)
@@ -387,6 +522,11 @@ ourApp.post("/removeMistake", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+ourApp.get("/test", authorizeRoles('Teachers'), (req, res) => {
+  res.json({ message: 'this is a test only teachers should see' });
+  console.log("this works")
+})
 
 ourApp.listen(PORT_NUMBER, () => {
   console.log(`Server running on http://localhost:${PORT_NUMBER}`);
