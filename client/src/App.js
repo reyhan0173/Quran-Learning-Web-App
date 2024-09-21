@@ -19,7 +19,9 @@ import MistakeButtons from "./components/MistakeButtons";
 import { MistakesProvider } from './MistakesContext';
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./components/Login";
+import roleTest from "./components/RoleTest";
 import {AuthProvider} from "./components/AuthContext";
+import RoleTest from "./components/RoleTest";
 
 const Tables = () => (
   <Table />
@@ -49,6 +51,7 @@ const App = () => {
     return (
         <div className="App">
                     <Header />
+            <RoleTest/>
                     <div className="App-body">
                         <Sidebar>
                             <SidebarItem to="/" icon={<LayoutDashboard size={40} />} text="Dashboard" alert />
