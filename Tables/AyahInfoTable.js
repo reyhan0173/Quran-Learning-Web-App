@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('./sequelize'); // Import the Sequelize instance
+const sequelize = require('../sequelize'); // Import the Sequelize instance
 
-const AyahInfo = sequelize.define('AyahInfo', {
+const AyahInfoTable = sequelize.define('AyahInfo', {
     surahNumber: {
         type: DataTypes.INTEGER,
         primaryKey: true
@@ -24,4 +24,4 @@ const AyahInfo = sequelize.define('AyahInfo', {
     timestamps: false
 });
 
-module.exports = AyahInfo;
+module.exports = AyahInfoTable;

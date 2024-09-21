@@ -68,7 +68,6 @@ main {
 .ayah-controls {
     width: 50px;
     display: flex;
-    flex-direction: column;
     justify-content: center;
 }
 
@@ -344,7 +343,7 @@ h4 {
 }
 
 .BtnHomeworkFunc {
-    width: 80px;
+    width: 100px;
 }
 
 .approveHomework-recordingDetails {

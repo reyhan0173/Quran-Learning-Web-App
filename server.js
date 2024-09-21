@@ -1,3 +1,4 @@
+require('dotenv').config();
 const PORT_NUMBER = 501;
 
 require('dotenv').config();
@@ -13,7 +14,8 @@ const jwt = require('jsonwebtoken');
 const Surah = require("./Surah");
 const Mistakes = require("./mistakesFormatting");
 const Bookmark = require("./bookmarkFormatting");
-const AyahInfo = require("./AyahInfo"); // Import the AyahInfo model
+const AyahInfo = require("./Tables/AyahInfoTable");
+const HomeworkAssign = require("./homeworkAssign");
 const authorizeRoles = require("./authorizeRoles");
 
 const ourApp = express();
@@ -22,6 +24,7 @@ const ourApp = express();
 ourApp.use(express.json());
 ourApp.use(express.urlencoded({ extended: false }));
 ourApp.use(express.static("public"));
+
 ourApp.use(bodyParser.json());
 ourApp.use(cookieParser('lol'));
 
@@ -37,8 +40,8 @@ ourApp.set("view engine", "ejs"); // Set EJS as the template engine
 AWS.config.update({
   region: 'us-east-2',
   credentials: {
-    accessKeyId:'',
-    secretAccessKey:''
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   }
 });
 
@@ -129,6 +132,11 @@ async function getAyahData(studentId, courseId, startPos, endPos) {
 
   return await Promise.all(promises);
 }
+
+async function getLatestHomework(studentId, courseId) {
+  return await HomeworkAssign.getLatestHomework(studentId, courseId);
+}
+
 
 async function AuthUser(username, password) {
   const authParams = {
@@ -293,11 +301,58 @@ ourApp.post("/signup", async (req, res) => {
   }
 });
 
+ourApp.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const data = await AuthUser(username, password);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Authentication failed' });
+  }
+});
+
+ourApp.post("/logout", async (req, res) => {
+  const { accessToken } = req.body;
+
+  const params = {
+    AccessToken: accessToken
+  };
+
+  try {
+    await cognitoIdentityServiceProvider.globalSignOut(params).promise();
+    res.json({ message: 'Successfully signed out globally' });
+  } catch (err) {
+    console.error('Global sign out error:', err);
+    res.status(500).json({ error: 'Global sign out failed' });
+  }
+});
+
+ourApp.post("/getApprovalStatus", async (req, res) => {
+  try {
+    const { studentId, courseId } = req.body;
+
+    const [approvedOn, startPos, endPos] = await getLatestHomework(studentId, courseId);
+
+    if (!startPos || !endPos) {
+      return res.status(400).json({ error: "startPos and endPos are required" });
+    }
+
+    res.json({ approvalStatus: approvedOn == null ? "1" : "0" });
+  } catch (err) {
+    console.error("Error fetching ayahs:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 ourApp.post("/fetchAyahs", async (req, res) => {
   try {
-    const { studentId, courseId, startPos, endPos } = req.body;
+    const { studentId, courseId } = req.body;
     User.studentId = studentId;
     User.courseId = courseId;
+
+    const [approvedOn, startPos, endPos] = await getLatestHomework(studentId, courseId);
+    console.log(`DEBUG 1021: ${startPos}, ${endPos}`);
 
     if (!startPos || !endPos) {
       return res.status(400).json({ error: "startPos and endPos are required" });
@@ -377,6 +432,56 @@ ourApp.post("/removeBookmark", async (req, res) => {
     res.status(500).send("Failed to remove bookmark");
   }
 });
+
+
+ourApp.post("/homeworkAssign", async (req, res) => {
+  console.log(req.body);
+  try {
+    // Implement the logic to handle adding mistakes (e.g., save to database)
+    await HomeworkAssign.homeworkAssign(req.body);
+    res.status(200).send("Homework Assigned successfully");
+  } catch (error) {
+    console.error("Error assigning homework:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+ourApp.post("/homeworkApprove", async (req, res) => {
+  console.log(req.body);
+  try {
+    // Implement the logic to handle adding mistakes (e.g., save to database)
+    await HomeworkAssign.homeworkApprove(req.body);
+    res.status(200).send("Homework Assigned successfully");
+  } catch (error) {
+    console.error("Error assigning homework:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+ourApp.post("/homeworkAdjust", async (req, res) => {
+  console.log(req.body);
+  try {
+    // Implement the logic to handle adding mistakes (e.g., save to database)
+    await HomeworkAssign.homeworkAdjust(req.body);
+    res.status(200).send("Homework Assigned successfully");
+  } catch (error) {
+    console.error("Error assigning homework:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+ourApp.post("/homeworkDecline", async (req, res) => {
+  console.log(req.body);
+  try {
+    // Implement the logic to handle adding mistakes (e.g., save to database)
+    await HomeworkAssign.homeworkDecline(req.body);
+    res.status(200).send("Homework Assigned successfully");
+  } catch (error) {
+    console.error("Error assigning homework:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 
 ourApp.post("/addMistake", async (req, res) => {
   try {

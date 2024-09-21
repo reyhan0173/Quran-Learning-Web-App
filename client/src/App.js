@@ -23,7 +23,6 @@ import roleTest from "./components/RoleTest";
 import {AuthProvider} from "./components/AuthContext";
 import RoleTest from "./components/RoleTest";
 
-
 const Tables = () => (
   <Table />
 )
@@ -39,12 +38,13 @@ const Dashboard = () => (
 const Analytics = () => <div>Analytics Page</div>;
 const QuranExplorer = () => (
   <AudioPlayerProvider>
-    <AyahList studentId={1111115} courseId={123} startPos={"108:1"} endPos={"110:3"} />
+    <Approve studentId={1111115} courseId={123} startPos={"108:1"} endPos={"110:3"} />
+    <Assign studentId={1111115} courseId={123} />
+
+    <AyahList studentId={1111115} courseId={123} />
     <MistakeButtons />
     <AudioRecorder />
     <AudioPlayer />
-    <Approve studentId={1111115} courseId={123} startPos={"108:1"} endPos={"110:3"} />
-    <Assign studentId={1111115} courseId={123} startPos={"108:1"} endPos={"110:3"} />
   </AudioPlayerProvider>
 );
 
