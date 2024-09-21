@@ -125,7 +125,7 @@ export default function Approve({ studentId, courseId, startPos, endPos }) {
       <input type="checkbox" id="approve-drawer-toggle" className="hidden peer" />
       <label
         htmlFor="approve-drawer-toggle"
-        className={`BtnHomeworkFunc fixed top-12 z-32 right-0 p-3 bg-indigo-500 text-white rounded-l-lg cursor-pointer transition-all duration-500 ease-in-out transform ${isApproveDrawerOpen ? 'translate-x-[-20rem]' : ''}`}
+        className={`BtnHomeworkFunc fixed top-12 z-30 right-0 p-3 bg-indigo-500 text-white rounded-l-lg cursor-pointer transition-all duration-500 ease-in-out transform ${isApproveDrawerOpen ? 'translate-x-[-20rem]' : ''}`}
         onClick={toggleApproveDrawer}
       >
         Approve
