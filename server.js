@@ -25,6 +25,8 @@ ourApp.use(express.static("public"));
 ourApp.use(bodyParser.json());
 ourApp.use(cookieParser('lol'));
 
+const test = "hello"
+
 const JWT_SECRET = 'sample';
 
 ourApp.use(cors({
