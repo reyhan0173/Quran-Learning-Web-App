@@ -1,6 +1,6 @@
 import {ChevronFirst, Bell, MessageCircle} from "lucide-react";
 import { GiExitDoor } from "react-icons/gi";
-import handleGlobalLogout from "./Logout";
+import handleLogout from "./Logout";
 import React from "react";
 
 export default function Header() {
@@ -38,7 +38,7 @@ export default function Header() {
                     {/* Online indicator (optional) */}
                     {/* <span className="absolute bottom-0 right-0 bg-green-500 rounded-full h-2 w-2"></span> */}
                 </div>
-                <button onClick={handleGlobalLogout} className="text-gray-600 hover:text-gray-900 px-">
+                <button onClick={handleLogout} className="text-gray-600 hover:text-gray-900 px-">
                     <GiExitDoor className="h-6 w-6"/>
                 </button>
             </div>
