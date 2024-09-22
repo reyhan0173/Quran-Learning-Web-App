@@ -16,12 +16,10 @@ import HomeworkCard from "./components/HomeworkCard";
 import Table from "./components/Table";
 import ClassPlacement from "./components/ClassPlacement";
 import MistakeButtons from "./components/MistakeButtons";
-import { MistakesProvider } from './MistakesContext';
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./components/Login";
-import roleTest from "./components/RoleTest";
 import {AuthProvider} from "./components/AuthContext";
-import RoleTest from "./components/RoleTest";
+import Logout from "./components/Logout";
 
 const Tables = () => (
   <Table />
@@ -52,7 +50,7 @@ const App = () => {
     return (
         <div className="App">
                     <Header />
-            <RoleTest/>
+            <Logout/>
                     <div className="App-body">
                         <Sidebar>
                             <SidebarItem to="/" icon={<LayoutDashboard size={40} />} text="Dashboard" alert />

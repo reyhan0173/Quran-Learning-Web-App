@@ -16,7 +16,6 @@ const Mistakes = require("./mistakesFormatting");
 const Bookmark = require("./bookmarkFormatting");
 const AyahInfo = require("./Tables/AyahInfoTable");
 const HomeworkAssign = require("./homeworkAssign");
-const authorizeRoles = require("./authorizeRoles");
 
 const ourApp = express();
 
@@ -28,7 +27,7 @@ ourApp.use(express.static("public"));
 ourApp.use(bodyParser.json());
 ourApp.use(cookieParser('lol'));
 
-const JWT_SECRET = 'sample';
+const JWT_SECRET = 'lo2';
 
 ourApp.use(cors({
   origin: 'http://localhost:3000', // Update this to your frontend's URL
@@ -185,7 +184,7 @@ ourApp.post("/login", async (req, res) => {
 
     // Sign JWT for access token (optional if you want a signed token)
     const tokenPayload = { accessToken, role };
-    const signedAccessToken = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '1h' });
+    const signedAccessToken = jwt.sign(tokenPayload, "test", { expiresIn: '1h' });
 
     // Set cookies for session management (HTTP-only and secure in production)
     res.cookie('authToken', signedAccessToken, {
@@ -301,32 +300,6 @@ ourApp.post("/signup", async (req, res) => {
   }
 });
 
-ourApp.post("/login", async (req, res) => {
-  const { username, password } = req.body;
-
-  try {
-    const data = await AuthUser(username, password);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: 'Authentication failed' });
-  }
-});
-
-ourApp.post("/logout", async (req, res) => {
-  const { accessToken } = req.body;
-
-  const params = {
-    AccessToken: accessToken
-  };
-
-  try {
-    await cognitoIdentityServiceProvider.globalSignOut(params).promise();
-    res.json({ message: 'Successfully signed out globally' });
-  } catch (err) {
-    console.error('Global sign out error:', err);
-    res.status(500).json({ error: 'Global sign out failed' });
-  }
-});
 
 ourApp.post("/getApprovalStatus", async (req, res) => {
   try {
@@ -523,10 +496,6 @@ ourApp.post("/removeMistake", async (req, res) => {
   }
 });
 
-ourApp.get("/test", authorizeRoles('Teachers'), (req, res) => {
-  res.json({ message: 'this is a test only teachers should see' });
-  console.log("this works")
-})
 
 ourApp.listen(PORT_NUMBER, () => {
   console.log(`Server running on http://localhost:${PORT_NUMBER}`);
