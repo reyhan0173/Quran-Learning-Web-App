@@ -40,6 +40,8 @@ export default function Login({ onLogin }) {
   };
 
   const handleLogin = async (e) => {
+    console.log("logging in...");
+
     e.preventDefault();
     try {
       const response = await axios.post("http://localhost:501/login", { username, password }, { withCredentials: true });
@@ -55,6 +57,8 @@ export default function Login({ onLogin }) {
       } else {
         console.error('No role returned in response');
       }
+
+
 
     } catch (err) {
       console.error('Login error:', err);

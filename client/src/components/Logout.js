@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from './AuthContext'; // Assume AuthContext is set up
+import { useAuth } from './AuthContext';
+import {GiExitDoor} from "react-icons/gi"; // Assume AuthContext is set up
 
 const LogoutButton = () => {
     const { logout } = useAuth();
@@ -14,9 +15,6 @@ const LogoutButton = () => {
             // Clear user info from context
             console.log('logged out front end')
             logout();
-
-            // Redirect to login page
-            navigate('/login');
         } catch (err) {
             console.error('Logout error:', err);
             alert('Logout failed: ' + err.message);
@@ -24,9 +22,9 @@ const LogoutButton = () => {
     };
 
     return (
-        <button onClick={handleLogout}>
-            Logout
-        </button>
+      <button onClick={handleLogout} className="text-gray-600 hover:text-gray-900 px-">
+          <GiExitDoor className="h-6 w-6"/>
+      </button>
     );
 };
 
