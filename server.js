@@ -165,6 +165,7 @@ async function AuthUser(username, password) {
       accessToken: authData.AuthenticationResult.AccessToken,
       idToken: authData.AuthenticationResult.IdToken,
       refreshToken: authData.AuthenticationResult.RefreshToken,
+      activeUser: username,
       role: group[0]  // Include the user's role in the response
     };
   } catch (err) {
@@ -178,9 +179,13 @@ ourApp.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    const data = await AuthUser(username, password); // Function to authenticate with Cognito
-
-    const { accessToken, refreshToken, idToken, role } = data;
+    const {
+      accessToken,
+      idToken,
+      refreshToken,
+      activeUser,
+      role
+    } = await AuthUser(username, password);
 
     // Sign JWT for access token (optional if you want a signed token)
     const tokenPayload = { accessToken, role };
@@ -203,6 +208,13 @@ ourApp.post("/login", async (req, res) => {
 
     // Set cookies for session management (HTTP-only and secure in production)
     res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: false, // Secure in production
+      path: '/',
+      maxAge: 3600000 // 1 hour
+    });
+
+    res.cookie('activeUser', activeUser, {
       httpOnly: true,
       secure: false, // Secure in production
       path: '/',
@@ -245,6 +257,7 @@ ourApp.post("/logout", async (req, res) => {
     res.clearCookie('authToken', { path: '/' });
     res.clearCookie('refreshToken', { path: '/' });
     res.clearCookie('accessToken', { path: '/' });
+    res.clearCookie('activeUser', { path: '/' });
 
     res.json({ message: 'Logout successful' });
   } catch (err) {
