@@ -219,6 +219,7 @@ ourApp.post("/login", async (req, res) => {
 
 // Logout endpoint
 ourApp.post("/logout", async (req, res) => {
+  console.log("logging out");
   try {
     // Retrieve access token from cookies
     const accessToken = req.cookies.accessToken;
