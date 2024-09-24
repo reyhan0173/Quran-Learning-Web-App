@@ -16,7 +16,6 @@ import HomeworkCard from "./components/HomeworkCard";
 import Table from "./components/Table";
 import ClassPlacement from "./components/ClassPlacement";
 import MistakeButtons from "./components/MistakeButtons";
-import Login from "./components/Login";
 
 const Tables = () => (
   <Table />
@@ -35,7 +34,7 @@ const QuranExplorer = () => (
   <AudioPlayerProvider>
     <Approve studentId={1111115} courseId={123} startPos={"108:1"} endPos={"110:3"} />
     <Assign studentId={1111115} courseId={123} />
-    <AyahList studentId={1111115} courseId={123} />
+    <AyahList courseId={123} />
     <MistakeButtons />
     <AudioRecorder />
     <AudioPlayer />

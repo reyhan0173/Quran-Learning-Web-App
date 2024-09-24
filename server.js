@@ -16,6 +16,7 @@ const Mistakes = require("./mistakesFormatting");
 const Bookmark = require("./bookmarkFormatting");
 const AyahInfo = require("./Tables/AyahInfoTable");
 const HomeworkAssign = require("./homeworkAssign");
+const User = require("./userFunctions");
 
 const ourApp = express();
 
@@ -46,7 +47,7 @@ AWS.config.update({
 
 const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider();
 
-let User = {
+let UserLoggedIn = {
   studentId: null,
   courseId: null
 }
@@ -101,7 +102,7 @@ async function getAyahData(studentId, courseId, startPos, endPos) {
           const mistakes = await Mistakes.hasMistake(studentId, courseId, current_posStr);
 
           console.log("__________DEBUG 8_____________")
-          console.log(`${User.studentId}, ${User.courseId}, ${pos[0]}, ${pos[1]}`)
+          console.log(`${UserLoggedIn.studentId}, ${UserLoggedIn.courseId}, ${pos[0]}, ${pos[1]}`)
 
           const isBookmarked = await Bookmark.isBookmarked(
             studentId, courseId, pos[0], pos[1]
@@ -136,7 +137,6 @@ async function getLatestHomework(studentId, courseId) {
   return await HomeworkAssign.getLatestHomework(studentId, courseId);
 }
 
-
 async function AuthUser(username, password) {
   const authParams = {
     AuthFlow: 'USER_PASSWORD_AUTH',
@@ -160,12 +160,14 @@ async function AuthUser(username, password) {
     // Get user group (role)
     const groupData = await cognitoIdentityServiceProvider.adminListGroupsForUser(groupParams).promise();
     const group = groupData.Groups.map(group => group.GroupName);
-
+    
+    const studentId = await User.getStudentId(username);
+    
     return {
       accessToken: authData.AuthenticationResult.AccessToken,
       idToken: authData.AuthenticationResult.IdToken,
       refreshToken: authData.AuthenticationResult.RefreshToken,
-      activeUser: username,
+      activeUser: studentId,
       role: group[0]  // Include the user's role in the response
     };
   } catch (err) {
@@ -227,6 +229,16 @@ ourApp.post("/login", async (req, res) => {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Authentication failed' });
   }
+});
+
+ourApp.post("/getActiveUser", async (req, res) => {
+  const activeUser = req.cookies.activeUser; // Get the cookie value
+  if (!activeUser) {
+    return res.status(401).json({ message: "Unauthorized" }); // Send a 401 if the token is not found
+  }
+  console.log('getActiveUser1', activeUser);
+
+  return res.json({ activeUser }); // Send the activeUser as a JSON response
 });
 
 // Logout endpoint
@@ -335,8 +347,8 @@ ourApp.post("/getApprovalStatus", async (req, res) => {
 ourApp.post("/fetchAyahs", async (req, res) => {
   try {
     const { studentId, courseId } = req.body;
-    User.studentId = studentId;
-    User.courseId = courseId;
+    UserLoggedIn.studentId = studentId;
+    UserLoggedIn.courseId = courseId;
 
     const [approvedOn, startPos, endPos] = await getLatestHomework(studentId, courseId);
     console.log(`DEBUG 1021: ${startPos}, ${endPos}`);
@@ -356,7 +368,7 @@ ourApp.post("/fetchAyahs", async (req, res) => {
 ourApp.post("/checkBookmark", async (req, res) => {
   try {
     const [surahId, ayahId] = req.body.current_posStr.split(":").map(Number);
-    const isBookmarked = await Bookmark.isBookmarked(User.studentId, User.courseId, surahId, ayahId);
+    const isBookmarked = await Bookmark.isBookmarked(UserLoggedIn.studentId, UserLoggedIn.courseId, surahId, ayahId);
     console.log(`________DEBUG 10________\n isBookmarked: ${isBookmarked}`);
     res.status(200).send({ isBookmarked });
   } catch (error) {
@@ -380,10 +392,10 @@ ourApp.post("/addBookmark", async (req, res) => {
       throw new Error("Invalid surahNumber or ayahNumber");
     }
 
-    // Assume User.studentId and User.courseId are securely obtained from authentication
+    // Assume UserLoggedIn.studentId and UserLoggedIn.courseId are securely obtained from authentication
     console.log("_____________________DEBUG________________________");
-    console.log(User.studentId, User.courseId, surahNumber, ayahNumber);
-    await Bookmark.addBookmark(User.studentId, User.courseId, surahNumber, ayahNumber);
+    console.log(UserLoggedIn.studentId, UserLoggedIn.courseId, surahNumber, ayahNumber);
+    await Bookmark.addBookmark(UserLoggedIn.studentId, UserLoggedIn.courseId, surahNumber, ayahNumber);
 
     res.status(200).send("Bookmark added successfully");
   } catch (error) {
@@ -407,11 +419,11 @@ ourApp.post("/removeBookmark", async (req, res) => {
       throw new Error("Invalid surahNumber or ayahNumber");
     }
 
-    // Assume User.studentId and User.courseId are securely obtained from authentication
+    // Assume UserLoggedIn.studentId and UserLoggedIn.courseId are securely obtained from authentication
     console.log("_____________________DEBUG________________________");
-    console.log(User.studentId, User.courseId, surahNumber, ayahNumber);
+    console.log(UserLoggedIn.studentId, UserLoggedIn.courseId, surahNumber, ayahNumber);
 
-    await Bookmark.removeBookmark(User.studentId, User.courseId, surahNumber, ayahNumber);
+    await Bookmark.removeBookmark(UserLoggedIn.studentId, UserLoggedIn.courseId, surahNumber, ayahNumber);
 
     res.status(200).send("Bookmark removed successfully");
   } catch (error) {
