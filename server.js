@@ -16,6 +16,7 @@ const Mistakes = require("./mistakesFormatting");
 const Bookmark = require("./bookmarkFormatting");
 const AyahInfo = require("./Tables/AyahInfoTable");
 const HomeworkAssign = require("./homeworkAssign");
+const {getLatestHomeworkApproval} = require("./homeworkAssign");
 
 const ourApp = express();
 
@@ -325,9 +326,24 @@ ourApp.post("/getApprovalStatus", async (req, res) => {
       return res.status(400).json({ error: "startPos and endPos are required" });
     }
 
-    res.json({ approvalStatus: approvedOn == null ? "1" : "0" });
+    console.log("DEBUG 4041", approvedOn, typeof (approvedOn), approvedOn === "null" ? 0 : 1);
+    res.json({ approvalStatus: approvedOn === "null" ? 0 : 1 });
   } catch (err) {
     console.error("Error fetching ayahs:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+ourApp.post("/getLatestHomeworkApprove", async (req, res) => {
+  try {
+    const { studentId, courseId } = req.body;
+    console.log("DEBUG:2013");
+    console.log(studentId, courseId);
+
+    const data = await getLatestHomeworkApproval(studentId, courseId);
+    res.json(data);
+  } catch (err) {
+    console.error("Error retrieving homework", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });

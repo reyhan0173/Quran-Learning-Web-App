@@ -3,12 +3,10 @@ import AyahContainer from "./AyahContainer";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
-const AyahList = ({ studentId, courseId }) => {
+const AyahList = ({ studentId, courseId, isAssigned }) => {
     const [ayahs, setAyahs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [startPos, setStartPos] = useState(0);
-    const [endPos, setEndPos] = useState(0);
 
 
     useEffect(() => {
@@ -47,7 +45,7 @@ const AyahList = ({ studentId, courseId }) => {
         return () => {
             // Cleanup code if needed
         };
-    }, [startPos, endPos]); // Only run effect if startPos or endPos change
+    }, [isAssigned]);
 
     console.log(`ayahs=${JSON.stringify(ayahs)}`);
 
@@ -60,6 +58,7 @@ const AyahList = ({ studentId, courseId }) => {
     if (error) return <p>{error}</p>; // Render error state
 
     return (
+      (isAssigned) && (
         <div className="ayah-list">
             {ayahs.map((ayah) => (
                 <AyahContainer
@@ -77,7 +76,7 @@ const AyahList = ({ studentId, courseId }) => {
                 />
             ))}
         </div>
-    );
+    ));
 };
 
 export default AyahList;

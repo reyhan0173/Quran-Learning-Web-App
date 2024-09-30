@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import AyahList from './components/AyahList';
@@ -16,7 +16,6 @@ import HomeworkCard from "./components/HomeworkCard";
 import Table from "./components/Table";
 import ClassPlacement from "./components/ClassPlacement";
 import MistakeButtons from "./components/MistakeButtons";
-import Login from "./components/Login";
 
 const Tables = () => (
   <Table />
@@ -31,16 +30,24 @@ const Dashboard = () => (
 );
 
 const Analytics = () => <div>Analytics Page</div>;
-const QuranExplorer = () => (
-  <AudioPlayerProvider>
-    <Approve studentId={1111115} courseId={123} startPos={"108:1"} endPos={"110:3"} />
-    <Assign studentId={1111115} courseId={123} />
-    <AyahList studentId={1111115} courseId={123} />
-    <MistakeButtons />
-    <AudioRecorder />
-    <AudioPlayer />
-  </AudioPlayerProvider>
-);
+const QuranExplorer = () => {
+  const [isAssignedState, setIsAssigned] = useState(1);
+
+  const handleAssignClick = () => {
+    setIsAssigned(prev => prev + 1);
+  };
+
+  return (
+    <AudioPlayerProvider>
+      <Approve studentId={1111115} courseId={123} isAssigned={isAssignedState} onAssignClick={handleAssignClick} />
+      <Assign studentId={1111115} courseId={123} isAssigned={isAssignedState} onAssignClick={handleAssignClick} />
+      <AyahList studentId={1111115} courseId={123} isAssigned={isAssignedState} />
+      <MistakeButtons />
+      <AudioRecorder />
+      <AudioPlayer />
+    </AudioPlayerProvider>
+  )
+}
 
 const App = () => {
   return (

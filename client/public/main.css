@@ -59,7 +59,8 @@ main {
 }
 
 .ayah-container {
-    background-color: rgb(209, 209, 209);
+    /*background-color: rgb(209, 209, 209);*/
+    background-color: white;
     display: flex;
     gap: 20px;
     padding: 10px 0;
@@ -343,7 +344,7 @@ h4 {
 }
 
 .BtnHomeworkFunc {
-    width: 100px;
+    width: 120px;
 }
 
 .approveHomework-recordingDetails {

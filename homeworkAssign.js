@@ -10,7 +10,7 @@ const getLatestHomework = async (studentId, courseId) => {
 
   return [
     `${latestHomework['dataValues']['approvedOn']}`,
-    `${latestHomework['dataValues']['fromSurah']}:${latestHomework['dataValues']['fromSurah']}`,
+    `${latestHomework['dataValues']['fromSurah']}:${latestHomework['dataValues']['fromAyah']}`,
     `${latestHomework['dataValues']['toSurah']}:${latestHomework['dataValues']['toAyah']}`
   ];
 }
@@ -53,7 +53,6 @@ const homeworkAdjust = async (body) => {
     return 0; // Failure
   }
 }
-
 
 const homeworkDecline = async (body) => {
   const {studentId, courseId, performance, approvalNotes} = body;
@@ -98,7 +97,6 @@ const homeworkDecline = async (body) => {
   }
 }
 
-
 const homeworkApprove = async (body) => {
   const {studentId, courseId, performance, notes} = body;
 
@@ -130,7 +128,6 @@ const homeworkApprove = async (body) => {
     return 0; // Failure
   }
 }
-
 
 const homeworkAssign = async (body) => {
   body = body['assignmentData']
@@ -188,4 +185,20 @@ const homeworkAssign = async (body) => {
   }
 }
 
-module.exports = { homeworkAssign, getLatestHomework, homeworkApprove, homeworkAdjust, homeworkDecline };
+const getLatestHomeworkApproval = async (studentId, courseId) => {
+  const latestHomework = await homeworkAssignTable.findOne({
+    where: { studentId, courseId },
+    order: [['assignedOn', 'DESC']] // Orders by assignedOn, descending (most recent first)
+  });
+
+  console.log(latestHomework);
+
+  return [
+    `${latestHomework['dataValues']['fromSurah']}`,
+    `${latestHomework['dataValues']['fromAyah']}`,
+    `${latestHomework['dataValues']['toSurah']}`,
+    `${latestHomework['dataValues']['toAyah']}`
+  ];
+}
+
+module.exports = { homeworkAssign, getLatestHomework, homeworkApprove, homeworkAdjust, homeworkDecline, getLatestHomeworkApproval };
