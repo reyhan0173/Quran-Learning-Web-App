@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 export default function Table() {
     const navigate = useNavigate();
@@ -22,22 +23,16 @@ export default function Table() {
                       <tr className="border-b border-gray-400 transition duration-300 ease-in-out hover:bg-gray-200 dark:border-gray-600 dark:hover:bg-gray-700">
                           <td className="whitespace-nowrap px-6 py-4 font-medium">Mark Otto</td>
                           <td className="whitespace-nowrap px-6 py-4">
-                              <button
-                                onClick={() => navigate('/attendance')}
-                                className="bg-blue-500 text-white px-3 py-1 rounded">Attendance
-                              </button>
+                              <Link to="/attendance" className="bg-blue-500 text-white px-3 py-1 rounded">Attendance</Link>
                           </td>
                           <td className="whitespace-nowrap px-6 py-4">
-                              <button
-                                onClick={() => navigate('/profile')}
-                                className="bg-green-500 text-white px-3 py-1 rounded">Profile
-                              </button>
+                              <Link to="/profile" className="bg-green-500 text-white px-3 py-1 rounded">Profile</Link>
                           </td>
                           <td className="whitespace-nowrap px-6 py-4">
-                              <button
-                                onClick={() => navigate('/quran-explorer')}
-                                className="bg-purple-500 text-white px-3 py-1 rounded">Assign Homework
-                              </button>
+                              {/* Pass studentId and courseId in the URL */}
+                              <Link to={`/quran-explorer/1111115/123}`} className="bg-purple-500 text-white px-3 py-1 rounded">
+                                  Assign Homework
+                              </Link>
                           </td>
                       </tr>
                       <tr className="border-b border-gray-400 transition duration-300 ease-in-out hover:bg-gray-200 dark:border-gray-600 dark:hover:bg-gray-700">

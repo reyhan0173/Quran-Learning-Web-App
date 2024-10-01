@@ -31,6 +31,7 @@ const Dashboard = () => (
 );
 
 const Analytics = () => <div>Analytics Page</div>;
+
 const QuranExplorer = () => (
   <AudioPlayerProvider>
     <Approve studentId={1111115} courseId={123} startPos={"108:1"} endPos={"110:3"} />
