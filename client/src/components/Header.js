@@ -4,7 +4,7 @@ import LogoutButton from "./Logout";
 
 export default function Header() {
   return (
-    <header className="bg-emerald-300 shadow-md flex justify-between items-center p-4">
+    <header className="bg-gray-400 shadow-md flex justify-between items-center p-4">
       {/* Left side: Logo */}
       <div className="flex items-center">
         <img
