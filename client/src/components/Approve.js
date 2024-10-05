@@ -107,7 +107,7 @@ const getLatestHomeworkApprove = async (studentId, courseId) => {
   }
 };
 
-export default function Approve({ studentId, courseId, isAssigned, onAssignClick }) {
+export default function ({ studentId, courseId, isApproved, setIsAssigned, onApproveClick }) {
   let [startSurahName, endSurahName] = ["", ""];
 
   const [approvalStatus, setApprovalStatus] = useState(0);
@@ -131,7 +131,7 @@ export default function Approve({ studentId, courseId, isAssigned, onAssignClick
     };
 
     fetchApprovalStatus();
-  }, [studentId, courseId, isAssigned]);
+  }, [studentId, courseId, isApproved]);
 
   // Toggle drawer state
   const toggleApproveDrawer = () => {
@@ -183,7 +183,9 @@ export default function Approve({ studentId, courseId, isAssigned, onAssignClick
     }
 
     setIsError(false);
-    console.log("Saved Data:", data);
+    onApproveClick();
+    setIsAssigned(0)
+    console.log(selectedAction);
   };
 
   // Use the latestHomework object to extract homework data if available
@@ -193,7 +195,7 @@ export default function Approve({ studentId, courseId, isAssigned, onAssignClick
   }
 
   return (
-    (isAssigned) && (
+    (
       <div className="relative flex justify-end bg-gray-100">
         {/* Drawer Toggle Tab */}
         <input type="checkbox" id="approve-drawer-toggle" className="hidden peer" />
@@ -279,7 +281,7 @@ export default function Approve({ studentId, courseId, isAssigned, onAssignClick
                 <button
                   className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-700"
                   onClick={() => {
-                    handleSave().then(r => onAssignClick());
+                    handleSave();
                   }}
                 >
                   Save <i className="fa fa-save"></i>

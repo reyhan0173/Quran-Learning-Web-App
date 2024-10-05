@@ -58,7 +58,7 @@ const AyahList = ({ studentId, courseId, isAssigned }) => {
     if (error) return <p>{error}</p>; // Render error state
 
     return (
-      (isAssigned) && (
+      (
         <div className="ayah-list">
             {ayahs.map((ayah) => (
                 <AyahContainer

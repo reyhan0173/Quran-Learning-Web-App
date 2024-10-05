@@ -45,7 +45,20 @@ function HomeworkCardElement({ courseId, courseName, courseHomework }) {
           </div>
 
           <ul className="list-none my-4 p-3 text-sm space-y-2">
-            <li><strong>Date:</strong> {courseHomework[0] ? courseHomework[0]['assignedOn'] : 'N/A'}</li>
+            <li>
+              <strong>Last
+                Modified:</strong> {courseHomework[0] ? new Date(courseHomework[0]['assignedOn']).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+
+              hour: 'numeric',
+              minute: 'numeric',
+              second: 'numeric',
+              hour12: true
+            }) : 'N/A'}
+            </li>
+
             <li>
               <strong>From: </strong>{courseHomework[0] ? `${surahList[courseHomework[0]['fromSurah']][0]} ${courseHomework[0]['fromAyah']}` : 'N/A'}
             </li>
@@ -67,7 +80,11 @@ function HomeworkCardElement({ courseId, courseName, courseHomework }) {
               {courseHomework[0] ? courseHomework[0]['listeningGoal'] : 'N/A'}</li>
             <li>
               <strong>Notes: </strong>
-              {courseHomework[0] ? courseHomework[0]['approvalNotes'] ? courseHomework[0]['assignmentNotes'] : '' : 'N/A'}
+              {courseHomework[0] ?
+                courseHomework[0]['approvalNotes'] ?
+                  courseHomework[0]['approvalNotes'] :
+                  courseHomework[0]['assignmentNotes'] :
+                'N/A'}
             </li>
             <li>
               <strong>Approval status: </strong>
@@ -79,13 +96,21 @@ function HomeworkCardElement({ courseId, courseName, courseHomework }) {
                 courseHomework[0]['performance'] :
                 courseHomework[1] && courseHomework[1]['performance'] ? courseHomework[1]['performance'] : 'N/A'}
             </li>
+            {courseHomework[0] && courseHomework[0]['recordingGoal'] &&
+              <li>
+                <strong>Recording goal: </strong>
+                {courseHomework[0]['recordingGoal']}
+              </li>
+            }
+
           </ul>
 
           {/* Button at the Bottom Right */}
           <div className="absolute bottom-4 right-4">
             <button
               className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition-colors"
-              onClick={() => {}}
+              onClick={() => {
+              }}
             >
               Open Quran ->
             </button>

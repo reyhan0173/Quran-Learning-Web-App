@@ -556,11 +556,6 @@ ourApp.post("/removeMistake", async (req, res) => {
     const { studentId, courseId, current_posStr, mistakeIndexes } = req.body;
     console.log('erasing', studentId, courseId, current_posStr, mistakeIndexes);
 
-    // Extract the token from the request header
-    const token = req.headers.authorization.split(' ')[1];
-
-    // Verify the token and extract the payload
-
     let [surahNumber, ayahNumber] = current_posStr.split(":").map(Number);
 
     // Implement the logic to handle removing mistakes (e.g., update database)

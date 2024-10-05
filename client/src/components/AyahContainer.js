@@ -144,10 +144,17 @@ const AyahContainer = ({ studentId, courseId, ayahData }) => {
           </div>
 
           <div className="ayah-con">
-              <p className="ayah">
+              <p style={{
+                  // fontFamily: 'Amiri, serif',
+                  fontFamily: 'Scheherazade New, serif',
+                  // fontFamily: 'Lateef, serif',
+
+                  fontSize: '24px', textAlign: 'right', direction: 'rtl'}}
+                className={'quran-text'}
+              >
                   {verse.split("").map((char, i) =>
                     mistakes.includes(i) ? (
-                      <span key={i} className="mistake">{char}</span>
+                      <span key={i} style={{color: 'red'}}>{char}</span>
                     ) : (
                       char
                     )

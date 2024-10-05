@@ -125,6 +125,7 @@ const homeworkApprove = async (body) => {
 
 const homeworkAssign = async (body) => {
   body = body['assignmentData']
+
   const {
     studentId,
     courseId,
@@ -139,50 +140,88 @@ const homeworkAssign = async (body) => {
     qariName,
     qariSpeed,
 
-    recordingCount,
+    recordingGoal,
     notes,
   } = body;
 
-  console.log(body);
+  const homeworks = await getHomeworks(studentId, courseId);
+  if (homeworks[0]['dataValues']['approvedOn']) {
+    try {
+      await homeworkAssignTable.create({
+        studentId: studentId,
+        courseId: courseId,
 
-  try {
-    await homeworkAssignTable.create({
-      studentId: studentId,
-      courseId: courseId,
+        assignedOn: new Date(),
+        completionTime: null,
 
-      assignedOn: new Date(),
-      completionTime: null,
+        listeningGoal: listeningGoal,
+        recordingCount: 0,
+        recordingGoal: recordingGoal,
 
-      listeningGoal: listeningGoal,
-      recordingCount: recordingCount,
+        performance: null,
 
-      goalMet: 0,
-      performance: null,
+        fromSurah: fromSurahNumber,
+        fromAyah: fromAyahNumber,
+        toSurah: toSurahNumber,
+        toAyah: toAyahNumber,
 
-      fromSurah: fromSurahNumber,
-      fromAyah: fromAyahNumber,
-      toSurah: toSurahNumber,
-      toAyah: toAyahNumber,
+        qariName: qariName,
+        speed: qariSpeed,
+        assignmentNotes: notes,
 
-      qariName: qariName,
-      speed: qariSpeed,
-      assignmentNotes: notes,
+        approvedOn: null
+      });
 
-      approvedOn: null
-    });
+      console.log('Data successfully inserted.');
+      return 1; // Success
+    } catch (err) {
+      console.error('Error inserting data:', err);
+      return 0; // Failure
+    }
+  } else {
+    try {
+      await homeworkAssignTable.update(
+        {
+          assignedOn: new Date(),
+          completionTime: null,
 
-    console.log('Data successfully inserted.');
-    return 1; // Success
-  } catch (err) {
-    console.error('Error inserting data:', err);
-    return 0; // Failure
+          listeningGoal: listeningGoal,
+          recordingGoal: recordingGoal,
+          recordingCount: 0,
+          performance: null,
+
+          fromSurah: fromSurahNumber,
+          fromAyah: fromAyahNumber,
+          toSurah: toSurahNumber,
+          toAyah: toAyahNumber,
+
+          qariName: qariName,
+          speed: qariSpeed,
+          assignmentNotes: notes,
+          approvedOn: null
+        },
+        {
+          where: {
+            studentId: studentId,
+            courseId: courseId,
+            assignedOn: homeworks[0]['dataValues'].assignedOn,
+          },
+        }
+      );
+
+      console.log('Existing homework successfully updated.');
+      return 1; // Success
+    } catch (err) {
+      console.error('Error updating data:', err);
+      return 0; // Failure
+    }
   }
 }
 
 const getLatestHomeworkApproval = async (studentId, courseId) => {
   const latestHomework = await homeworkAssignTable.findOne({
     where: { studentId, courseId },
-    order: [['assignedOn', 'DESC']] // Orders by assignedOn, descending (most recent first)
+    order: [['assignedOn', 'DESC']]
   });
 
   console.log(latestHomework);

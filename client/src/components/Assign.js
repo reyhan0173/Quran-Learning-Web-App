@@ -42,8 +42,9 @@ const getAssignedText = async (studentId, courseId) => {
   }
 };
 
-export default function ({ studentId, courseId, isAssigned, onAssignClick }) {
+export default function ({ studentId, courseId, isAssigned, setIsApproved, onAssignClick }) {
   const [assignText, setAssignText] = useState("");
+  const recordingPermission = 1;
 
   useEffect(() => {
     const fetchAssignedText = async () => {
@@ -65,7 +66,7 @@ export default function ({ studentId, courseId, isAssigned, onAssignClick }) {
   const [listeningFormat, setListeningFormat] = useState("each ayah");
   const [qariName, setQariName] = useState("Shaykh A");
   const [qariSpeed, setQariSpeed] = useState(1);
-  const [recordingCount, setRecordingCount] = useState(0);
+  const [recordingGoal, setRecordingGoal] = recordingPermission === 1 ? useState(0) : useState(null);
   const [notes, setNotes] = useState("");
 
   // Toggle drawer state
@@ -87,7 +88,7 @@ export default function ({ studentId, courseId, isAssigned, onAssignClick }) {
       listeningFormat,
       qariName,
       qariSpeed,
-      recordingCount,
+      recordingGoal,
       notes,
     };
 
@@ -101,12 +102,15 @@ export default function ({ studentId, courseId, isAssigned, onAssignClick }) {
 
     setIsError(false);
     await assign(assignmentData);
+    onAssignClick();
+    setIsApproved(1);
+    onAssignClick();
     setAssignText("Re-assign");
     return 1;
   };
 
   return (
-    isAssigned && (
+    (
       <div className="relative flex justify-end bg-gray-100">
         <input type="checkbox" id="assign-drawer-toggle" className="hidden peer" />
         <label
@@ -263,17 +267,19 @@ export default function ({ studentId, courseId, isAssigned, onAssignClick }) {
                 </select>
               </div>
 
-              <div className="flex items-center space-x-2 mb-2 mt-2">
-                <h4 className="font-semibold">Recording:</h4>
-                <input
-                  type="number"
-                  className="w-16 p-1 border rounded"
-                  value={recordingCount}
-                  onChange={(e) => setRecordingCount(Number(e.target.value))}
-                  min="0"
-                  max="20"
-                />
-              </div>
+              {recordingPermission === 1 && (
+                <div className="flex items-center space-x-2 mb-2 mt-2">
+                  <h4 className="font-semibold">Recording:</h4>
+                  <input
+                    type="number"
+                    className="w-16 p-1 border rounded"
+                    value={recordingGoal}
+                    onChange={(e) => setRecordingGoal(Number(e.target.value))}
+                    min="0"
+                    max="20"
+                  />
+                </div>
+              )}
 
               <div className="flex flex-col mt-2 mb-2 flex-1">
                 <h5 className="font-semibold">Notes/Comments:</h5>
@@ -289,7 +295,7 @@ export default function ({ studentId, courseId, isAssigned, onAssignClick }) {
               <button
                 className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-700"
                 onClick={() => {
-                  handleAssign().then(r => onAssignClick());
+                  handleAssign();
                 }}
               >
                 Assign &#10004;

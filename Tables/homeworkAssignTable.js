@@ -4,57 +4,74 @@ const sequelize = require('../sequelize');
 const homeworkAssignTable = sequelize.define('homeworkAyah', {
   studentId: {
     type: DataTypes.INTEGER,
-    primaryKey: true
+    primaryKey: true,
+    allowNull: false,
   },
   courseId: {
     type: DataTypes.INTEGER,
-    primaryKey: true
+    primaryKey: true,
+    allowNull: false,
   },
   assignedOn: {
     type: DataTypes.DATE,
-    primaryKey: true
+    primaryKey: true,
+    allowNull: false,
   },
   completionTime: {
-    type: DataTypes.DATE
+    type: DataTypes.DATE,
+    defaultValue: null
   },
   listeningGoal: {
-    type: DataTypes.INTEGER
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  recordingGoal: {
+    type: DataTypes.INTEGER,
+    defaultValue: null
   },
   recordingCount: {
-    type: DataTypes.INTEGER
-  },
-  goalMet: {
-    type: DataTypes.BOOLEAN
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
   },
   performance: {
-    type: DataTypes.FLOAT
+    type: DataTypes.FLOAT,
+    defaultValue: null,
   },
   fromSurah: {
-    type: DataTypes.STRING(45)
+    type: DataTypes.STRING(45),
+    allowNull: false,
   },
   fromAyah: {
-    type: DataTypes.STRING(45)
+    type: DataTypes.STRING(45),
+    allowNull: false,
   },
   toSurah: {
-    type: DataTypes.STRING(45)
+    type: DataTypes.STRING(45),
+    allowNull: false,
   },
   toAyah: {
-    type: DataTypes.STRING(45)
+    type: DataTypes.STRING(45),
+    allowNull: false,
   },
   qariName: {
-    type: DataTypes.STRING(45)
+    type: DataTypes.STRING(45),
+    allowNull: false,
   },
   speed: {
-    type: DataTypes.STRING(45)
+    type: DataTypes.STRING(45),
+    allowNull: false,
   },
   assignmentNotes: {
-    type: DataTypes.STRING(45) // Notes column allowing NULL
+    type: DataTypes.STRING(45),
+    defaultValue: null,
   },
   approvalNotes: {
-    type: DataTypes.STRING(45) // Notes column allowing NULL
+    type: DataTypes.STRING(45),
+    defaultValue: null,
   },
   approvedOn: {
-    type: DataTypes.DATE
+    type: DataTypes.DATE,
+    defaultValue: null,
   },
 }, {
   tableName: 'homeworkAyah',

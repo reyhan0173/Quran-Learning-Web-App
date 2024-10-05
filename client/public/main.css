@@ -78,10 +78,17 @@ main {
     flex: 1;
 }
 
-.ayah {
-    text-align: right;
+@font-face {
+    font-family: 'UthmanicHafs';
+    src: url('./KFGQPC Uthmanic Script HAFS Regular.otf') format('truetype');
 }
 
+.quran-text {
+    font-family: 'UthmanicHafs', serif;
+    font-size: 24px;
+    text-align: right;
+    direction: rtl;
+}
 .number-input-container {
     width: 60px;
 }
@@ -110,7 +117,7 @@ main {
 }
 
 .mistake {
-    color: yellow;
+    color: red;
 }
 
 .audio-player {

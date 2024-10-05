@@ -32,15 +32,27 @@ const Dashboard = () => (
 const Analytics = () => <div>Analytics Page</div>;
 const QuranExplorer = () => {
   const [isAssignedState, setIsAssigned] = useState(1);
+  const [isApprovedState, setIsApproved] = useState(1);
 
   const handleAssignClick = () => {
     setIsAssigned(prev => prev + 1);
   };
 
+  const handleApproveClick = () => {
+    setIsApproved(prev => prev + 1);
+  };
+
+
   return (
     <AudioPlayerProvider>
-      <Approve studentId={1111115} courseId={101} isAssigned={isAssignedState} onAssignClick={handleAssignClick} />
-      <Assign studentId={1111115} courseId={101} isAssigned={isAssignedState} onAssignClick={handleAssignClick} />
+      <Assign studentId={1111115} courseId={101}
+              isAssigned={isAssignedState} setIsApproved={setIsApproved}
+              onAssignClick={handleAssignClick} />
+
+      <Approve studentId={1111115} courseId={101}
+               isApproved={isApprovedState} setIsAssigned={setIsAssigned}
+               onApproveClick={handleApproveClick} />
+
       <AyahList studentId={1111115} courseId={101} isAssigned={isAssignedState} />
       <MistakeButtons />
       <AudioRecorder />
