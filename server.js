@@ -11,12 +11,17 @@ const AWS = require('aws-sdk')
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 
-const Surah = require("./Surah");
+const Surah = require("./Tables/SurahTable");
 const Mistakes = require("./mistakesFormatting");
 const Bookmark = require("./bookmarkFormatting");
+
 const AyahInfo = require("./Tables/AyahInfoTable");
+const courseInfoTable = require("./Tables/CourseInfoTable");
+const homeworkAssignTable = require("./Tables/homeworkAssignTable");
+const studentInfoTable = require("./Tables/SchoolUsersTable");
+
 const HomeworkAssign = require("./homeworkAssign");
-const {getLatestHomeworkApproval} = require("./homeworkAssign");
+const {getLatestHomeworkApproval, getHomeworks} = require("./homeworkAssign");
 
 const ourApp = express();
 
@@ -27,8 +32,6 @@ ourApp.use(express.static("public"));
 
 ourApp.use(bodyParser.json());
 ourApp.use(cookieParser('lol'));
-
-const JWT_SECRET = 'lo2';
 
 ourApp.use(cors({
   origin: 'http://localhost:3000', // Update this to your frontend's URL
@@ -134,7 +137,8 @@ async function getAyahData(studentId, courseId, startPos, endPos) {
 }
 
 async function getLatestHomework(studentId, courseId) {
-  return await HomeworkAssign.getLatestHomework(studentId, courseId);
+  const homeworks = await HomeworkAssign.getHomeworks(studentId, courseId);
+  return homeworks[0];
 }
 
 
@@ -320,14 +324,11 @@ ourApp.post("/getApprovalStatus", async (req, res) => {
   try {
     const { studentId, courseId } = req.body;
 
-    const [approvedOn, startPos, endPos] = await getLatestHomework(studentId, courseId);
-
-    if (!startPos || !endPos) {
-      return res.status(400).json({ error: "startPos and endPos are required" });
-    }
+    const latestHomework = await getLatestHomework(studentId, courseId);
+    const approvedOn = latestHomework['dataValues']['approvedOn'];
 
     console.log("DEBUG 4041", approvedOn, typeof (approvedOn), approvedOn === "null" ? 0 : 1);
-    res.json({ approvalStatus: approvedOn === "null" ? 0 : 1 });
+    res.json({ approvalStatus: approvedOn === null ? 0 : 1 });
   } catch (err) {
     console.error("Error fetching ayahs:", err);
     res.status(500).json({ error: "Internal Server Error" });
@@ -354,7 +355,11 @@ ourApp.post("/fetchAyahs", async (req, res) => {
     User.studentId = studentId;
     User.courseId = courseId;
 
-    const [approvedOn, startPos, endPos] = await getLatestHomework(studentId, courseId);
+    const latestHomework = await getLatestHomework(studentId, courseId);
+
+    const startPos = `${latestHomework['dataValues']['fromSurah']}:${latestHomework['dataValues']['fromAyah']}`;
+    const endPos =  `${latestHomework['dataValues']['toSurah']}:${latestHomework['dataValues']['toAyah']}`;
+
     console.log(`DEBUG 1021: ${startPos}, ${endPos}`);
 
     if (!startPos || !endPos) {
@@ -366,6 +371,52 @@ ourApp.post("/fetchAyahs", async (req, res) => {
   } catch (err) {
     console.error("Error fetching ayahs:", err);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+async function getEnrolledCourses(studentId) {
+  let studentInfo = await studentInfoTable.findOne({
+    where: {studentId},
+  });
+  return studentInfo['dataValues']['RegisteredClasses']['class_id'];
+}
+
+async function getCourseName(courseId) {
+  const courseInfo = await courseInfoTable.findOne({
+    where: {courseId},
+    attributes: ['courseName']
+  });
+  return courseInfo['courseName']
+}
+
+ourApp.post("/enrolledCoursesInfo", async (req, res) => {
+  let courseName;
+  let homeworks;
+
+  try {
+    const {studentId} = req.body;
+    const enrolledCourses = await getEnrolledCourses(studentId); // Ensure this function is defined
+
+    const courseNames = [];
+    const courseHomeworks = [];
+    for (let i = 0; i < enrolledCourses.length; i++) {
+      try {
+        console.log(enrolledCourses[i]);
+
+        courseName = await getCourseName(enrolledCourses[i]);
+        courseNames.push(courseName);
+
+        homeworks = await getHomeworks(studentId, enrolledCourses[i]);
+        courseHomeworks.push([homeworks[0] ? homeworks[0] : null, homeworks[1] ? homeworks[1] : null]);
+      } catch (error) {
+      }
+    }
+
+    // Sending both enrolled courses and course names back in the response
+    res.status(200).send({enrolledCourses, courseNames, courseHomeworks}); // Return both in the response
+  } catch (error) {
+    console.error("Error checking enrolled courses", error);
+    res.status(500).send({error: "Error checking enrolled courses"});
   }
 });
 
@@ -503,17 +554,12 @@ ourApp.post("/addMistake", async (req, res) => {
 ourApp.post("/removeMistake", async (req, res) => {
   try {
     const { studentId, courseId, current_posStr, mistakeIndexes } = req.body;
+    console.log('erasing', studentId, courseId, current_posStr, mistakeIndexes);
 
     // Extract the token from the request header
     const token = req.headers.authorization.split(' ')[1];
 
     // Verify the token and extract the payload
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET); // Replace process.env.JWT_SECRET with your actual secret
-
-    // Check if the user's role is "Teachers"
-    if (decodedToken.role !== 'Teachers') {
-      return res.status(403).send("Access Denied: You do not have the required permissions to perform this action.");
-    }
 
     let [surahNumber, ayahNumber] = current_posStr.split(":").map(Number);
 

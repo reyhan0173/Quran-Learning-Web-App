@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('./sequelize');
+const sequelize = require('../sequelize');
 
-const Surah = sequelize.define('Surah', {
+const SurahTable = sequelize.define('Surah', {
     SurahNumber: {
         type: DataTypes.INTEGER,
         primaryKey: true
@@ -17,4 +17,4 @@ const Surah = sequelize.define('Surah', {
     timestamps: false
 });
 
-module.exports = Surah;
+module.exports = SurahTable;

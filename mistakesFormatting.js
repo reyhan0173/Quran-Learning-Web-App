@@ -60,6 +60,7 @@ async function addMistake(studentId, courseId, surahNumber, ayahNumber, newMista
 
 
 async function removeMistake(studentId, courseId, surahNumber, ayahNumber, indexesToRemove) {
+    console.log("_____DEBUG 12_____", studentId, courseId, surahNumber, ayahNumber, indexesToRemove);
     try {
         const result = await AyahFormatting.findOne({
             where: {

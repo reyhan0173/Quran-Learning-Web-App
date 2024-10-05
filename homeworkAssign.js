@@ -1,18 +1,11 @@
 const homeworkAssignTable = require('./Tables/homeworkAssignTable');
 
-const getLatestHomework = async (studentId, courseId) => {
-  const latestHomework = await homeworkAssignTable.findOne({
+const getHomeworks = async (studentId, courseId) => {
+  console.log(`finding homework for studentId: ${studentId}, courseId: ${courseId}`);
+  return await homeworkAssignTable.findAll({
     where: { studentId, courseId },
-    order: [['assignedOn', 'DESC']] // Orders by assignedOn, descending (most recent first)
+    order: [['assignedOn', 'DESC']]
   });
-
-  console.log(latestHomework);
-
-  return [
-    `${latestHomework['dataValues']['approvedOn']}`,
-    `${latestHomework['dataValues']['fromSurah']}:${latestHomework['dataValues']['fromAyah']}`,
-    `${latestHomework['dataValues']['toSurah']}:${latestHomework['dataValues']['toAyah']}`
-  ];
 }
 
 const homeworkAdjust = async (body) => {
@@ -23,7 +16,8 @@ const homeworkAdjust = async (body) => {
   try {
 
     // Find the most recent assignment based on 'assignedOn'
-    existingAssignment = await getLatestHomework(studentId, courseId);
+    homeworks = await getHomeworks(studentId, courseId);
+    existingAssignment = homeworks[0];
     // If an assignment is found, update its fields
     if (existingAssignment) {
       // Create a new assignment based on the existing one
@@ -201,4 +195,4 @@ const getLatestHomeworkApproval = async (studentId, courseId) => {
   ];
 }
 
-module.exports = { homeworkAssign, getLatestHomework, homeworkApprove, homeworkAdjust, homeworkDecline, getLatestHomeworkApproval };
+module.exports = { homeworkAssign, getHomeworks, homeworkApprove, homeworkAdjust, homeworkDecline, getLatestHomeworkApproval };

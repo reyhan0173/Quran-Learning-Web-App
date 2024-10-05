@@ -39,9 +39,9 @@ const QuranExplorer = () => {
 
   return (
     <AudioPlayerProvider>
-      <Approve studentId={1111115} courseId={123} isAssigned={isAssignedState} onAssignClick={handleAssignClick} />
-      <Assign studentId={1111115} courseId={123} isAssigned={isAssignedState} onAssignClick={handleAssignClick} />
-      <AyahList studentId={1111115} courseId={123} isAssigned={isAssignedState} />
+      <Approve studentId={1111115} courseId={101} isAssigned={isAssignedState} onAssignClick={handleAssignClick} />
+      <Assign studentId={1111115} courseId={101} isAssigned={isAssignedState} onAssignClick={handleAssignClick} />
+      <AyahList studentId={1111115} courseId={101} isAssigned={isAssignedState} />
       <MistakeButtons />
       <AudioRecorder />
       <AudioPlayer />
