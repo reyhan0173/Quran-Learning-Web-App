@@ -1,141 +1,139 @@
 import React, { useState, useRef } from "react";
+import axios from "axios";
 
 const AudioRecorder = () => {
-    const [isRecording, setIsRecording] = useState(false);
-    const [audioUrl, setAudioUrl] = useState(null);
-    const mediaRecorderRef = useRef(null);
-    const audioChunksRef = useRef([]);
-    const audioPlaybackRef = useRef(null);
-    const [isSubmitDisabled, setIsSubmitDisabled] = useState(false);
-    const [isPlayDisabled, setIsPlayDisabled] = useState(true); // Disabled by default until audio is available
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioUrl, setAudioUrl] = useState(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const audioPlaybackRef = useRef(null);
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(false);
+  const [isPlayDisabled, setIsPlayDisabled] = useState(true);
 
-    const startRecording = () => {
-        // Clear the audio playback URL
-        audioPlaybackRef.current.src = null;
-        const playBtn = document.getElementById("recordPlayBtn");
-        playBtn.innerHTML = '<i class="fa fa-play"></i>'; // Change icon to pause when playing
+  const startRecording = () => {
+    audioPlaybackRef.current.src = null;
+    const playBtn = document.getElementById("recordPlayBtn");
+    playBtn.innerHTML = '<i class="fa fa-play"></i>';
 
-        // Reset audio chunks and clear previous recordings
-        audioChunksRef.current = [];
-        setAudioUrl(null);
+    audioChunksRef.current = [];
+    setAudioUrl(null);
 
-        if (!mediaRecorderRef.current || mediaRecorderRef.current.state === "inactive") {
-            navigator.mediaDevices.getUserMedia({ audio: true })
-                .then((stream) => {
-                    const playBtn = document.getElementById("recordPlayBtn");
-                    playBtn.disabled = true;
+    if (!mediaRecorderRef.current || mediaRecorderRef.current.state === "inactive") {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then((stream) => {
+          const playBtn = document.getElementById("recordPlayBtn");
+          playBtn.disabled = true;
 
-                    mediaRecorderRef.current = new MediaRecorder(stream);
-                    mediaRecorderRef.current.start();
-                    setIsRecording(true);
+          mediaRecorderRef.current = new MediaRecorder(stream);
+          mediaRecorderRef.current.start();
+          setIsRecording(true);
 
-                    mediaRecorderRef.current.ondataavailable = (event) => {
-                        audioChunksRef.current.push(event.data);
-                    };
+          mediaRecorderRef.current.ondataavailable = (event) => {
+            audioChunksRef.current.push(event.data);
+          };
 
-                    mediaRecorderRef.current.onstop = () => {
-                        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" });
-                        setAudioUrl(URL.createObjectURL(audioBlob));
-                        setIsRecording(false);
-                        setIsPlayDisabled(false); // Enable the playback button after recording stops
-                    };
-                })
-                .catch((error) => {
-                    console.error("Error accessing microphone: ", error);
-                });
-        }
-    };
+          mediaRecorderRef.current.onstop = () => {
+            const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" });
+            setAudioUrl(URL.createObjectURL(audioBlob));
+            setIsRecording(false);
+            setIsPlayDisabled(false);
+          };
+        })
+        .catch((error) => {
+          console.error("Error accessing microphone: ", error);
+        });
+    }
+  };
 
-    const stopRecording = () => {
-        if (mediaRecorderRef.current) {
-            mediaRecorderRef.current.stop();
-        }
-    };
+  const stopRecording = () => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+    }
+  };
 
-    const playRecording = () => {
-        const audioPlayback = audioPlaybackRef.current;
-        const playBtn = document.getElementById("recordPlayBtn");
+  const submitRecording = () => {
+    if (audioUrl) {
+      fetch(audioUrl)
+        .then(response => response.blob())
+        .then(audioBlob => {
+          const formData = new FormData();
+          formData.append("audio", audioBlob, "recording.wav");
 
-        if (audioPlayback.paused) {
-            audioPlayback.play();
-            playBtn.innerHTML = '<i class="fa fa-pause"></i>'; // Change icon to pause when playing
-        } else {
-            audioPlayback.pause();
-            playBtn.innerHTML = '<i class="fa fa-play"></i>'; // Change icon to play when paused
-        }
-    };
+          axios.post("http://localhost:501/upload", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data"
+            }
+          })
+            .then(response => {
+              console.log("Audio uploaded successfully:", response.data);
+              setIsSubmitDisabled(true);
+              setIsPlayDisabled(true);
+              setAudioUrl(null);
+            })
+            .catch(error => {
+              console.error("Error uploading audio:", error);
+            });
+        });
+    }
+  };
 
-    const submitRecording = () => {
-        if (audioUrl) {
-            // Handle the audio submission
-            console.log("Audio submitted");
+  const playRecording = () => {
+    const audioPlayback = audioPlaybackRef.current;
+    const playBtn = document.getElementById("recordPlayBtn");
 
-            // Disable the buttons
-            setIsSubmitDisabled(true);
-            setIsPlayDisabled(true);
+    if (audioPlayback.paused) {
+      audioPlayback.play();
+      playBtn.innerHTML = '<i class="fa fa-pause"></i>';
+    } else {
+      audioPlayback.pause();
+      playBtn.innerHTML = '<i class="fa fa-play"></i>';
+    }
+  };
 
-            // Clear the audio blob and URL
-            setAudioUrl(null);
+  const handlePlaybackEnd = () => {
+    const playBtn = document.getElementById("recordPlayBtn");
+    playBtn.innerHTML = '<i class="fa fa-play"></i>';
+  };
 
-            // Reset play button icon to play
-            const playBtn = document.getElementById("recordPlayBtn");
-            playBtn.innerHTML = '<i class="fa fa-play"></i>';
-        }
-    };
+  return (
+    <div className="timeRange record-section">
+      <button
+        id="recordBtn"
+        className="recordBtn icon-Btn"
+        onClick={isRecording ? stopRecording : startRecording}
+      >
+        <i className={isRecording ? "fa fa-stop" : "fa fa-microphone"}></i>
+      </button>
 
-    const handlePlaybackEnd = () => {
-        const playBtn = document.getElementById("recordPlayBtn");
-        playBtn.innerHTML = '<i class="fa fa-play"></i>'; // Change icon to play when audio playback ends
-    };
+      <button
+        id="recordPlayBtn"
+        className="recordPlayBtn icon-Btn"
+        onClick={playRecording}
+        disabled={isPlayDisabled || !audioUrl}
+      >
+        <i className="fa fa-play recordPlayBtn-icon"></i>
+      </button>
 
-    return (
-        <div className="timeRange record-section">
-            <button
-                id="recordBtn"
-                className="recordBtn icon-Btn"
-                onClick={isRecording ? stopRecording : startRecording}
-            >
-                <i className={isRecording ? "fa fa-stop" : "fa fa-microphone"}></i>
-            </button>
+      <button
+        id="recordSubmitBtn"
+        className="recordSubmitBtn icon-Btn"
+        onClick={submitRecording}
+        disabled={!audioUrl || isSubmitDisabled}
+      >
+        <i className="fa fa-check recordSubmitBtn-icon"></i>
+      </button>
 
-            <button
-                id="recordPlayBtn"
-                className="recordPlayBtn icon-Btn"
-                onClick={playRecording}
-                disabled={isPlayDisabled || !audioUrl} // Disable if no audioUrl or playback is disabled
-            >
-                <i className="fa fa-play recordPlayBtn-icon"></i>
-            </button>
-
-            <button
-                id="recordSubmitBtn"
-                className="recordSubmitBtn icon-Btn"
-                onClick={submitRecording}
-                disabled={!audioUrl || isSubmitDisabled}
-            >
-                <i className="fa fa-check recordSubmitBtn-icon"></i>
-            </button>
-
-            <button
-                id="recordTrashBtn"
-                className="recordTrashBtn icon-Btn"
-                onClick={submitRecording}
-                disabled={!audioUrl || isSubmitDisabled}
-            >
-                <i className="fa fa-trash recordTrashBtn-icon"></i>
-            </button>
-
-            <audio
-                id="audioPlayback"
-                className="hidden"
-                controls
-                style={{ display: "none" }}
-                ref={audioPlaybackRef}
-                src={audioUrl}
-                onEnded={handlePlaybackEnd} // Call handlePlaybackEnd when audio playback ends
-            ></audio>
-        </div>
-    );
+      <audio
+        id="audioPlayback"
+        className="hidden"
+        controls
+        style={{ display: "none" }}
+        ref={audioPlaybackRef}
+        src={audioUrl}
+        onEnded={handlePlaybackEnd}
+      ></audio>
+    </div>
+  );
 };
 
 export default AudioRecorder;

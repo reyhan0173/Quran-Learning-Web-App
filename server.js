@@ -10,6 +10,7 @@ const cors = require("cors");
 const AWS = require('aws-sdk')
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
+const fs = require("fs");
 
 const Surah = require("./Tables/SurahTable");
 const Mistakes = require("./mistakesFormatting");
@@ -22,7 +23,8 @@ const studentInfoTable = require("./Tables/SchoolUsersTable");
 
 const HomeworkAssign = require("./homeworkAssign");
 const {getLatestHomeworkApproval, getHomeworks} = require("./homeworkAssign");
-
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
 const ourApp = express();
 
 // Serve static files from the 'public' directory
@@ -54,6 +56,29 @@ let User = {
   studentId: null,
   courseId: null
 }
+
+const s3 = new AWS.S3();
+const bucketName = "audiorecordings123";
+
+ourApp.post("/upload", upload.single("audio"), (req, res) => {
+  const fileContent = fs.readFileSync(req.file.path);
+  const params = {
+    Bucket: bucketName,
+    Key: `audio/${Date.now()}_${req.file.originalname}`,
+    Body: fileContent,
+    ContentType: "audio/wav"
+  };
+
+  s3.upload(params, (err, data) => {
+    if (err) {
+      console.error("Error uploading to S3:", err);
+      return res.status(500).send(err);
+    }
+
+    fs.unlinkSync(req.file.path); // Clean up file after upload
+    res.status(200).json({ message: "File uploaded successfully", url: data.Location });
+  });
+});
 
 async function getAyahCount(surahNumber) {
   try {

@@ -146,7 +146,7 @@ const AyahContainer = ({ studentId, courseId, ayahData }) => {
           <div className="ayah-con">
               <p style={{
                   // fontFamily: 'Amiri, serif',
-                  fontFamily: 'Scheherazade New, serif',
+                  // fontFamily: 'Scheherazade New, serif',
                   // fontFamily: 'Lateef, serif',
 
                   fontSize: '24px', textAlign: 'right', direction: 'rtl'}}
@@ -154,7 +154,7 @@ const AyahContainer = ({ studentId, courseId, ayahData }) => {
               >
                   {verse.split("").map((char, i) =>
                     mistakes.includes(i) ? (
-                      <span key={i} style={{color: 'red'}}>{char}</span>
+                      <span key={i} className={"mistake"} style={{color: 'red'}}>{char}</span>
                     ) : (
                       char
                     )

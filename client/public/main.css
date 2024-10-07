@@ -79,13 +79,13 @@ main {
     flex: 1;
 }
 
-@font-face {
-    font-family: 'UthmanicHafs';
-    src: url('./KFGQPC Uthmanic Script HAFS Regular.otf') format('truetype');
-}
+/*@font-face {*/
+/*    font-family: 'UthmanicHafs';*/
+/*    src: url('./KFGQPC Uthmanic Script HAFS Regular.otf') format('truetype');*/
+/*}*/
 
 .quran-text {
-    font-family: 'UthmanicHafs', serif;
+    /*font-family: 'UthmanicHafs', serif;*/
     font-size: 24px;
     text-align: right;
     direction: rtl;
