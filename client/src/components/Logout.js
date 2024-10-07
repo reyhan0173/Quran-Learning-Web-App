@@ -10,7 +10,7 @@ const LogoutButton = () => {
 
     const handleLogout = async () => {
         try {
-            await axios.post('http://localhost:501/logout', {}, {withCredentials: true});
+            await axios.post('http://3.129.90.105:5000/logout', {}, {withCredentials: true});
 
             // Clear user info from context
             console.log('logged out front end')

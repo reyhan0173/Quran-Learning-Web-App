@@ -5,7 +5,6 @@ import AyahList from './components/AyahList';
 import AudioRecorder from './components/AudioRecorder';
 import AudioPlayer from './components/AudioPlayer';
 import { AudioPlayerProvider } from './components/AudioPlayerContext';
-import 'font-awesome/css/font-awesome.min.css';
 import Sidebar from "./components/Sidebar";
 import { SidebarItem } from "./components/Sidebar";
 import { BarChart2, LayoutDashboard } from "lucide-react";

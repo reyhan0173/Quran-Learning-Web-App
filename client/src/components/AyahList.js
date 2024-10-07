@@ -15,7 +15,7 @@ const AyahList = ({ studentId, courseId }) => {
         const fetchAyahData = async () => {
             setLoading(true);
             try {
-                const response = await fetch("http://localhost:501/fetchAyahs", {
+                const response = await fetch("/fetchAyahs", {
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'

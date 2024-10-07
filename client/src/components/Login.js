@@ -21,7 +21,7 @@ export default function Login({ onLogin }) {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:501/signup", {
+      const response = await axios.post("http://3.129.90.105:5000/signup", {
         firstName,
         lastName,
         phoneNumber,
@@ -44,7 +44,7 @@ export default function Login({ onLogin }) {
 
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:501/login", { username, password }, { withCredentials: true });
+      const response = await axios.post("http://3.129.90.105:5000/login", { username, password }, { withCredentials: true });
 
       console.log('Login response:', response.data); // Log response
       const { role } = response.data;

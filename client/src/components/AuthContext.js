@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
     // Function to check if the user is already authenticated
     const checkAuthStatus = async () => {
         try {
-            const response = await axios.get("http://localhost:501/check-auth-status", { withCredentials: true });
+            const response = await axios.get("http://3.129.90.105:5000/check-auth-status", { withCredentials: true });
             const { role } = response.data;
 
             if (role) {

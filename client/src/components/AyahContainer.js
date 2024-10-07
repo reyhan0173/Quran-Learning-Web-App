@@ -34,7 +34,7 @@ const AyahContainer = ({ studentId, courseId, ayahData }) => {
     useEffect(() => {
         const fetchBookmarkState = async () => {
             try {
-                const response = await fetch(`http://localhost:501/checkBookmark`, {
+                const response = await fetch(`http://3.129.90.105:5000/checkBookmark`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
