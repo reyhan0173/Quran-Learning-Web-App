@@ -57,7 +57,7 @@ export const addMistake = async (studentId, courseId, current_posStr, verse, mis
     console.log("_____DEBUG 14_____")
     console.log(studentId);
 
-    const response = await fetch("http://localhost:501/addMistake", {
+    const response = await fetch("http://3.129.90.105:5000/addMistake", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -127,7 +127,7 @@ export const removeMistake = async (studentId, courseId, current_posStr, setMist
   }
 
   try {
-    const response = await fetch("http://localhost:501/removeMistake", {
+    const response = await fetch("http://3.129.90.105:5000/removeMistake", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
