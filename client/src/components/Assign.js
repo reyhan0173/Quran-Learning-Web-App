@@ -4,7 +4,7 @@ import { surahList } from '../functions/surahListFunction';
 const assign = async (assignmentData) => {
   console.log(assignmentData);
   try {
-    const response = await fetch("http://localhost:501/homeworkAssign", {
+    const response = await fetch("http://3.129.90.105:5000/homeworkAssign", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -22,7 +22,7 @@ const assign = async (assignmentData) => {
 const getAssignedText = async (studentId, courseId) => {
 
   try {
-    const response = await fetch("http://localhost:501/getApprovalStatus", {
+    const response = await fetch("http://3.129.90.105:5000/getApprovalStatus", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -1,7 +1,7 @@
 // Toggle bookmark state
 export const toggleBookmark = async (setIsBookmarked, isBookmarked, current_posStr) => {
   try {
-    const endpoint = isBookmarked ? "http://localhost:501/removeBookmark" : "http://localhost:501/addBookmark";
+    const endpoint = isBookmarked ? "http://3.129.90.105:5000/removeBookmark" : "http://3.129.90.105:5000/addBookmark";
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {

@@ -30,7 +30,9 @@ ourApp.use(cookieParser('lol'));
 const JWT_SECRET = 'lo2';
 
 ourApp.use(cors({
-  origin: 'http://localhost:3000', // Update this to your frontend's URL
+  origin: ['http://localhost:3000', 'http://3.129.90.105:3000',
+    'http://attilawah.com:3000/', 'http://attilawah.com/',
+    'https://attilawah.com/', 'https://attilawah.com:3000/'], // Update this to your frontend's URL
   credentials: true // Allow credentials (cookies) to be sent
 }));
 

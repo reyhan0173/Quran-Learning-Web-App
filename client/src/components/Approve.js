@@ -4,7 +4,7 @@ import { surahList } from '../functions/surahListFunction';
 
 const homeworkApprove = async (studentId, courseId, performance, notes) => {
   try {
-    const response = await fetch("http://localhost:501/homeworkApprove", {
+    const response = await fetch("http://3.129.90.105:5000/homeworkApprove", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -21,7 +21,7 @@ const homeworkApprove = async (studentId, courseId, performance, notes) => {
 
 const homeworkAdjust = async (studentId, courseId) => {
   try {
-    const response = await fetch("http://localhost:501/homeworkAdjust", {
+    const response = await fetch("http://3.129.90.105:5000/homeworkAdjust", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -38,7 +38,7 @@ const homeworkAdjust = async (studentId, courseId) => {
 
 const homeworkDecline = async (studentId, courseId, performance, notes) => {
   try {
-    const response = await fetch("http://localhost:501/homeworkDecline", {
+    const response = await fetch("http://3.129.90.105:5000/homeworkDecline", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
